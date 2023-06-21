@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230621.1354>
+#  Last Modified : <230621.1535>
 #
 #  Description	
 #
@@ -305,6 +305,19 @@ class YardDemo(object):
     _BoardThick  = 3.0/4.0
     _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
     _lexColor    = tuple([1.0,1.0,1.0])
+    _roadbedPoly = [
+        (0.000000,8),\
+        (0.000000,7.941824),\
+        (2.134400,7.941824),\
+        (5.269878,7.681286),\
+        (27.750000,3.875000),\
+        (36.000000,3.875000),\
+        (36.000000,1.375000),\
+        (0.000000,1.375000),\
+        (0.000000,8)\
+    ]
+    _roadbedColor = tuple([.5,.5,.5])
+    _roadbedThick = 1.0/8.0
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -386,7 +399,17 @@ class YardDemo(object):
         Material.AddMaterial("lexan","thick=1/8",\
                              "width=%f"%(self._LexanHeight),\
                              "length=%f"%(self._OuterWidth-(2*self._LexanThick)))
-        
+        polypoints = list()
+        pstring = "polygon=["
+        RoadbedExtrude = Base.Vector(0,0,self._roadbedThick)
+        for tup in self._roadbedPoly:
+            x,y = tup
+            polypoints.append(origin.add(Base.Vector(x,y,self._BaseHeight)))
+            pstring = pstring + "(%f,%f)"%(x,y-1.375)
+        pstring = pstring + "]"
+        self.roadbed = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                        .extrude(RoadbedExtrude)
+        Material.AddMaterial("homabed",pstring)
     def show(self,doc=None):
         if doc==None:
             doc = App.activeDocument()
@@ -430,7 +453,10 @@ class YardDemo(object):
         obj.Label = self.name+"_lexright"
         obj.ViewObject.ShapeColor=self._lexColor
         obj.ViewObject.Transparency = 90
-    
+        obj = doc.addObject("Part::Feature",self.name+"_roadbed")
+        obj.Shape = self.roadbed
+        obj.Label = self.name+"_roadbed"
+        obj.ViewObject.ShapeColor=self._roadbedColor
 
 class MultiDemo(object):
     def __init__(self,name,origin):
