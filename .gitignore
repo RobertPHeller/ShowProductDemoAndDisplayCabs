@@ -1,0 +1,7 @@
+# uEmacs backup files
+*~
+*#
+# Python cache
+__pycache__/*
+# FreeCAD files
+*.FCStd
