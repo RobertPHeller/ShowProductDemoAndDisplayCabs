@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230621.1535>
+#  Last Modified : <230622.1454>
 #
 #  Description	
 #
@@ -318,10 +318,13 @@ class YardDemo(object):
     ]
     _roadbedColor = tuple([.5,.5,.5])
     _roadbedThick = 1.0/8.0
+    _masoniteThick = 1.0/8.0
+    _masoniteColor = tuple([139/255.0,35/255.0,35/255.0])
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
             raise RuntimeError("origin is not a Vector!")
+        self.origin = origin
         ZNorm = Base.Vector(0,0,1)
         PlyExtrude = Base.Vector(0,0,self._PlyThick)
         self.layoutbase = Part.makePlane(self._OuterLength,self._OuterWidth,\
@@ -341,8 +344,10 @@ class YardDemo(object):
         Material.AddMaterial("pine","thick=3/4",\
                              "width=%f"%(self._BaseHeight-self._PlyThick),\
                              "length=%f"%self._OuterLength)
-        self.back = Part.makePlane(self._BaseHeight-self._PlyThick,self._OuterLength,\
-                                    origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight-self._PlyThick)),YNormB).extrude(BackExtrude)
+        self.back = Part.makePlane(self._BaseHeight-self._PlyThick,\
+                                    self._OuterLength,\
+                                    origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight-self._PlyThick)),\
+                                    YNormB).extrude(BackExtrude)
         x = self._BaseHeight-self._PlyThick
         Material.AddMaterial("pine","thick=3/4",\
                              "width=%f"%(x),\
@@ -410,6 +415,88 @@ class YardDemo(object):
         self.roadbed = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                         .extrude(RoadbedExtrude)
         Material.AddMaterial("homabed",pstring)
+        self.cornerA = self.__corner__('A')
+        self.cornerB = self.__corner__('B')
+        self.cornerC = self.__corner__('C')
+        self.cornerD = self.__corner__('D')
+        self.lexmountF1 = self.__lexmount__('F',origin.add(Base.Vector(3,0,self._BaseHeight)))
+        self.lexmountF2 = self.__lexmount__('F',origin.add(Base.Vector(self._OuterLength-(3+self._mountLength),0,self._BaseHeight)))
+        self.lexmountB1 = self.__lexmount__('B',origin.add(Base.Vector(3,0,self._BaseHeight)))
+        self.lexmountB2 = self.__lexmount__('B',origin.add(Base.Vector(self._OuterLength-(3+self._mountLength),0,self._BaseHeight)))
+        self.frontCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+                                         self._OuterLength+(2*self._BoardThick),\
+                                         origin.add(Base.Vector(-self._BoardThick,-self._BoardThick,0)),\
+                                         YNormF).extrude(FrontExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
+                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+        self.backCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+                                        self._OuterLength+(2*self._BoardThick),\
+                                        origin.add(Base.Vector(-self._BoardThick,self._OuterWidth+self._BoardThick,self._BaseHeight+self._LexanHeight)),\
+                                        YNormB).extrude(BackExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
+                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+        self.leftCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+                                        self._OuterWidth,\
+                                        origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
+                                        XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
+                             "length=%f"%(self._OuterWidth))
+        self.rightCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+                                   self._OuterWidth,\
+                                   origin.add(Base.Vector(self._OuterLength+self._BoardThick,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
+                                   XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
+                             "length=%f"%(self._OuterWidth))
+        MasoniteExtrude = Base.Vector(0,0,self._masoniteThick)
+        self.topCover = Part.makePlane(self._OuterLength+(2*self._BoardThick),\
+                                       self._OuterWidth+(2*self._BoardThick),\
+                                       origin.add(Base.Vector(-self._BoardThick,\
+                                                              -self._BoardThick,\
+                                                              self._BaseHeight+self._LexanHeight)),\
+                                       ZNorm).extrude(MasoniteExtrude)
+        Material.AddMaterial("masonite","thick=1/8",\
+                             "width=%f"%(self._OuterWidth+(2*self._BoardThick)),\
+                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+    _cornerPolys = {\
+        'A': [(0.125,11.875),(1.125,11.875),(1.125,11.75),(.25,11.75),\
+              (.25,10.875),(.125,10.875),(.125,11.875)],\
+        'B': [(34.875,11.875),(35.875,11.875),(35.875,10.875),\
+              (35.75,10.875),(35.75,11.75),(34.875,11.75),\
+              (34.875,11.875)],\
+        'C': [(34.875,0.125),(35.875,0.125),(35.875,1.125),(35.75,1.125),\
+              (35.75,0.25),(34.875,0.25),(34.875,0.125)],\
+        'D': [(.125,1.125),(.25,1.125),(.25,.25),(1.125,.25),(1.125,.25),\
+              (1.125,.125),(.125,.125),(.125,1.125)]\
+    }
+    def __corner__(self,which):
+        polypoints = list()
+        CornerExtrude = Base.Vector(0,0,self._LexanHeight)
+        for tup in self._cornerPolys[which]:
+            x,y = tup
+            polypoints.append(self.origin.add(Base.Vector(x,y,self._BaseHeight)))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._LexanHeight))
+        return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                .extrude(CornerExtrude)
+    _lexmountPoly = {\
+        'F': [(.125,1.),(.25,1.125),(.25,.125),(1.125,.125),(1.125,0),\
+              (.125,0),(.125,1.)],\
+        'B': [(10.875,0),(11.875,0),(11.875,1),(11.75,1),(11.75,.125),\
+              (10.875,.125),(10.875,0)]\
+    }
+    _mountLength = 6
+    def __lexmount__(self,side,o):
+        polypoints = list()
+        MountExtrude = Base.Vector(self._mountLength,0,0)
+        for tup in self._lexmountPoly[side]:
+            y,z = tup
+            polypoints.append(o.add(Base.Vector(0,y,z)))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._mountLength))
+        return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                .extrude(MountExtrude)
     def show(self,doc=None):
         if doc==None:
             doc = App.activeDocument()
@@ -457,16 +544,205 @@ class YardDemo(object):
         obj.Shape = self.roadbed
         obj.Label = self.name+"_roadbed"
         obj.ViewObject.ShapeColor=self._roadbedColor
-
+        obj = doc.addObject("Part::Feature",self.name+"_cornerA")
+        obj.Shape = self.cornerA
+        obj.Label = self.name+"_cornerA"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_cornerB")
+        obj.Shape = self.cornerB
+        obj.Label = self.name+"_cornerB"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_cornerC")
+        obj.Shape = self.cornerC
+        obj.Label = self.name+"_cornerC"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_cornerD")
+        obj.Shape = self.cornerD
+        obj.Label = self.name+"_cornerD"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountF1")
+        obj.Shape = self.lexmountF1
+        obj.Label = self.name+"_lexmountF1"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountF2")
+        obj.Shape = self.lexmountF2
+        obj.Label = self.name+"_lexmountF2"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountB1")
+        obj.Shape = self.lexmountB1
+        obj.Label = self.name+"_lexmountB1"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountB2")
+        obj.Shape = self.lexmountB2
+        obj.Label = self.name+"_lexmountB2"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_frontCover")
+        obj.Shape = self.frontCover
+        obj.Label = self.name+"_frontCover"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_backCover")
+        obj.Shape = self.backCover
+        obj.Label = self.name+"_backCover"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_leftCover")
+        obj.Shape = self.leftCover
+        obj.Label = self.name+"_leftCover"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_rightCover")
+        obj.Shape = self.rightCover
+        obj.Label = self.name+"_rightCover"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_topCover")
+        obj.Shape = self.topCover
+        obj.Label = self.name+"_topCover"
+        obj.ViewObject.ShapeColor=self._masoniteColor
+        obj.ViewObject.Transparency = 30
+        
 class MultiDemo(object):
+    # control panel: 6.5"x4"
+    # turnouts     : 9.66666" each
+    # 8 Ball Club  : 8"
+    # Outer box size: 36x24x7.875 (folded), 72x12x7.875 (unfolded)
+    # depth calc: 3/8+6+1/8+1+3/8
+    #             ply,space+lex+space+ply
+    # Right half: servo turnout, twin coil turnout, single coil turnout, control panel
+    #             9.66666+9.66666+9.66666+7 = 36
+    # Left half:  Pricom, neopixel, 8 Ball Club, stall motor turnout
+    #             9+9+8+9.83333
+    _OuterWidthFolded = 36
+    _OuterWidthUnfolded = 72
+    _OuterHeightFolded = 24
+    _OuterHeightUnfolded = 12
+    _OuterDepthBase = (3.0/8.0)+6+(1.0/8.0)
+    _OuterDepthLid  = (3.0/8.0)+1
+    _InnerDepthBase = 6
+    _InnerDepthLid  = 1
+    _PlyThick    = 3.0/8.0
+    _LexanThick  = 1.0/8.0
+    _BoardThick  = 3.0/4.0
+    _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
+    _lexColor    = tuple([1.0,1.0,1.0])
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
             raise RuntimeError("origin is not a Vector!")
+        self.origin = origin
+        YNorm = Base.Vector(0,1,0)
+        BackExtrude = Base.Vector(0,self._PlyThick,0)
+        self.backR  = Part.makePlane(self._OuterHeightUnfolded,\
+                                     self._OuterWidthFolded,\
+                                     origin,YNorm).extrude(BackExtrude)
+        self.backL  = Part.makePlane(self._OuterHeightUnfolded,\
+                                     self._OuterWidthFolded,\
+                                     origin.add(Base.Vector(0,0,\
+                                            self._OuterHeightUnfolded)),\
+                                     YNorm).extrude(BackExtrude)
+        Material.AddMaterial("plywood","thick=3/8",\
+                             "width=%f"%(self._OuterWidthFolded),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+        Material.AddMaterial("plywood","thick=3/8",\
+                             "width=%f"%(self._OuterWidthFolded),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+                #
+        XNormL = Base.Vector(-1,0,0)
+        XNormR = Base.Vector(1,0,0)
+        LeftExtrude = Base.Vector(-self._BoardThick,0,0)
+        RightExtrude = Base.Vector(self._BoardThick,0,0)
+        self.leftR = Part.makePlane(self._OuterHeightUnfolded,\
+                                    self._InnerDepthBase,\
+                                    origin.add(Base.Vector(self._BoardThick,\
+                                                           0,\
+                                                           self._OuterHeightUnfolded)),XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+        self.leftL = Part.makePlane(self._OuterHeightUnfolded,\
+                                    self._InnerDepthBase,\
+                                    origin.add(Base.Vector(self._BoardThick,\
+                                                           0,\
+                                                           2*self._OuterHeightUnfolded)),XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+        self.rightR = Part.makePlane(self._OuterHeightUnfolded,\
+                                    self._InnerDepthBase,\
+                                    origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,0,0)),XNormR).extrude(RightExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+        self.rightL = Part.makePlane(self._OuterHeightUnfolded,\
+                                    self._InnerDepthBase,\
+                                    origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,0,self._OuterHeightUnfolded)),XNormR).extrude(RightExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterHeightUnfolded))
+        #
+        ZNormB = Base.Vector(0,0,1)
+        ZNormT = Base.Vector(0,0,-1) 
+        BottomExtrude = Base.Vector(0,0,self._BoardThick)
+        TopExtrude = Base.Vector(0,0,-self._BoardThick)
+        self.bottom = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthBase,\
+                                     origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),0)),ZNormB).extrude(BottomExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        self.top = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthBase,\
+                                     origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._OuterHeightFolded)),ZNormB).extrude(TopExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthBase),\
+                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        
+        
     def show(self,doc=None):
         if doc==None:
             doc = App.activeDocument()
-    
+        obj = doc.addObject("Part::Feature",self.name+"_backR")
+        obj.Shape = self.backR
+        obj.Label = self.name+"_backR"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_backL")
+        obj.Shape = self.backL
+        obj.Label = self.name+"_backL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_leftR")
+        obj.Shape = self.leftR
+        obj.Label = self.name+"_leftR"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_leftL")
+        obj.Shape = self.leftL
+        obj.Label = self.name+"_leftL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_rightR")
+        obj.Shape = self.rightR
+        obj.Label = self.name+"_rightR"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_rightL")
+        obj.Shape = self.rightL
+        obj.Label = self.name+"_rightL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_bottom")
+        obj.Shape = self.bottom
+        obj.Label = self.name+"_bottom"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_top")
+        obj.Shape = self.top
+        obj.Label = self.name+"_top"
+        obj.ViewObject.ShapeColor=self._woodColor
+            
 
 
 if __name__ == '__main__':
@@ -492,11 +768,12 @@ if __name__ == '__main__':
     Gui.ActiveDocument=yd_doc
     Gui.SendMsgToActiveView("ViewFit")
     Gui.activeDocument().activeView().viewIsometric()
-    #md_doc = App.newDocument('MultiDemo')
-    #md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
-    #App.ActiveDocument=md_doc
-    #Gui.ActiveDocument=md_doc
-    #Gui.SendMsgToActiveView("ViewFit")
-    #Gui.activeDocument().activeView().viewIsometric()
+    md_doc = App.newDocument('MultiDemo')
+    md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
+    md.show(md_doc)
+    App.ActiveDocument=md_doc
+    Gui.ActiveDocument=md_doc
+    Gui.SendMsgToActiveView("ViewFit")
+    Gui.activeDocument().activeView().viewIsometric()
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
     
