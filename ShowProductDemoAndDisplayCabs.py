@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230622.1454>
+#  Last Modified : <230623.1613>
 #
 #  Description	
 #
@@ -630,6 +630,8 @@ class MultiDemo(object):
     _InnerDepthBase = 6
     _InnerDepthLid  = 1
     _PlyThick    = 3.0/8.0
+    _BirchPlyThick = 1.0/4.0
+    _ShelfHeight = 6
     _LexanThick  = 1.0/8.0
     _BoardThick  = 3.0/4.0
     _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
@@ -705,8 +707,92 @@ class MultiDemo(object):
         Material.AddMaterial("pine","thick=3/4",\
                              "width=%f"%(self._InnerDepthBase),\
                              "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        ShelfRExtrude = Base.Vector(0,0,self._BirchPlyThick)
+        ShelfLExtrude = Base.Vector(0,0,-self._BirchPlyThick)
+        self.shelfR = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthBase,\
+                                     origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._ShelfHeight)),ZNormB).extrude(ShelfRExtrude)
+        Material.AddMaterial("birch plywood","thick=1/4",\
+                "width=%f"%(self._InnerDepthBase),\
+                "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        self.shelfL = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthBase,\
+                                     origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._OuterHeightFolded-self._ShelfHeight)),ZNormB).extrude(ShelfLExtrude)
+        Material.AddMaterial("birch plywood","thick=1/4",\
+                "width=%f"%(self._InnerDepthBase),\
+                "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        self.shelfRBraces = list()
+        self.shelfLBraces = list()
+        for x in [self._BoardThick+1,self._OuterWidthFolded/4,\
+                  self._OuterWidthFolded/2,3*(self._OuterWidthFolded/4),\
+                  self._OuterWidthFolded-(2*self._BoardThick)-1]:
+            self.shelfRBraces.append(self.__shelfBrace__(x,self._InnerDepthBase,'R'))
+            self.shelfLBraces.append(self.__shelfBrace__(x,self._OuterHeightFolded-self._InnerDepthBase,'L'))
+        LexFrontExtrude = Base.Vector(0,self._LexanThick,0)
+        self.lexFrontR = Part.makePlane(self._OuterHeightUnfolded,\
+                                     self._OuterWidthFolded,\
+                                     origin.add(Base.Vector(0,\
+                                        -(self._PlyThick+self._InnerDepthBase),\
+                                        0)),YNorm).extrude(LexFrontExtrude)
+        Material.AddMaterial("lexan","thick=1/8",\
+                             "width=%f"%(self._OuterHeightUnfolded),\
+                             "length=%f"%(self._OuterWidthFolded))
+        self.lexFrontL = Part.makePlane(self._OuterHeightUnfolded,\
+                                     self._OuterWidthFolded,\
+                                     origin.add(Base.Vector(0,\
+                                            -(self._PlyThick+self._InnerDepthBase),\
+                                            self._OuterHeightUnfolded)),\
+                                     YNorm).extrude(LexFrontExtrude)
+        Material.AddMaterial("lexan","thick=1/8",\
+                             "width=%f"%(self._OuterHeightUnfolded),\
+                             "length=%f"%(self._OuterWidthFolded))
+        self.lexAngles = list()
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._ShelfHeight/2,'L'))
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'L'))
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'L'))
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'L'))
+
+        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight/2,'R'))
+        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'R'))
+        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'R'))
+        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'R'))
+
+
         
         
+    _lexAnglePolys8ths = {\
+        'R': [(8,0), (0,0), (0,-8), (1,-8), (1,-1), (8,-1), (8,0)],\
+        'L': [(0,0), (0,8), (1,8),  (1,1),  (8,1),  (8,0),  (0,0)] \
+    }
+    _lexAngleLength = 1
+    def __lexAngle__(self,xoff,yoff,zoff,which):
+        polypoints = list()
+        LexAngleExtrude = Base.Vector(0,0,self._lexAngleLength)
+        for tup in self._lexAnglePolys8ths[which]:
+            y,x = tup
+            polypoints.append(self.origin.add(Base.Vector(xoff+(x/8.0),\
+                                                          yoff+(y/8.0),\
+                                                          zoff)))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._lexAngleLength))
+        return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                    .extrude(LexAngleExtrude)
+    _shelfBracePoly = [(0,0), (-6,0), (0,3), (0,0)]
+    def __shelfBrace__(self,xoff,zoff,which):
+        sign=1
+        if which == 'R':
+            sign=-1
+        polypoints = list()
+        BraceExtrude = Base.Vector(self._BoardThick,0,0)
+        pstring = "polygon=["
+        for tup in self._shelfBracePoly:
+            y,z = tup
+            pstring = pstring + "(%f,%f)"%(abs(y),z)
+            z = z*sign
+            polypoints.append(self.origin.add(Base.Vector(xoff,y,z+zoff)))
+        pstring = pstring + "]"
+        Material.AddMaterial("pine","thick=3/4",pstring)
+        return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                .extrude(BraceExtrude)
     def show(self,doc=None):
         if doc==None:
             doc = App.activeDocument()
@@ -742,8 +828,48 @@ class MultiDemo(object):
         obj.Shape = self.top
         obj.Label = self.name+"_top"
         obj.ViewObject.ShapeColor=self._woodColor
-            
-
+        obj = doc.addObject("Part::Feature",self.name+"_shelfR")
+        obj.Shape = self.shelfR
+        obj.Label = self.name+"_shelfR"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_shelfL")
+        obj.Shape = self.shelfL
+        obj.Label = self.name+"_shelfL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        index = 1
+        for b in self.shelfRBraces:
+            n = "_shelfRB%d"%(index)
+            obj = doc.addObject("Part::Feature",self.name+n)
+            obj.Shape = b
+            obj.Label = self.name+n
+            obj.ViewObject.ShapeColor=self._woodColor
+            index = index + 1
+        index = 1
+        for b in self.shelfLBraces:
+            n = "_shelfLB%d"%(index)
+            obj = doc.addObject("Part::Feature",self.name+n)
+            obj.Shape = b
+            obj.Label = self.name+n
+            obj.ViewObject.ShapeColor=self._woodColor
+            index = index + 1
+        obj = doc.addObject("Part::Feature",self.name+"_lexFrontR")
+        obj.Shape = self.lexFrontR
+        obj.Label = self.name+"_lexFrontR"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lexFrontL")
+        obj.Shape = self.lexFrontL
+        obj.Label = self.name+"_lexFrontL"
+        obj.ViewObject.ShapeColor=self._lexColor
+        obj.ViewObject.Transparency = 90
+        index = 1
+        for a in self.lexAngles:
+            n = "_lexAngles%d"%(index)
+            obj = doc.addObject("Part::Feature",self.name+n)
+            obj.Shape = a
+            obj.Label = self.name+n
+            obj.ViewObject.ShapeColor=self._lexColor
+            obj.ViewObject.Transparency = 90
 
 if __name__ == '__main__':
     doc = None
@@ -774,6 +900,6 @@ if __name__ == '__main__':
     App.ActiveDocument=md_doc
     Gui.ActiveDocument=md_doc
     Gui.SendMsgToActiveView("ViewFit")
-    Gui.activeDocument().activeView().viewIsometric()
+    Gui.activeDocument().activeView().viewFront()
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
     
