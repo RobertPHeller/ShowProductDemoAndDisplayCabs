@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230623.1613>
+#  Last Modified : <230624.0932>
 #
 #  Description	
 #
@@ -666,7 +666,8 @@ class MultiDemo(object):
                                     self._InnerDepthBase,\
                                     origin.add(Base.Vector(self._BoardThick,\
                                                            0,\
-                                                           self._OuterHeightUnfolded)),XNormL).extrude(LeftExtrude)
+                                                           self._OuterHeightUnfolded)),\
+                                    XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
                              "width=%f"%(self._InnerDepthBase),\
                              "length=%f"%(self._OuterHeightUnfolded))
@@ -732,7 +733,7 @@ class MultiDemo(object):
         self.lexFrontR = Part.makePlane(self._OuterHeightUnfolded,\
                                      self._OuterWidthFolded,\
                                      origin.add(Base.Vector(0,\
-                                        -(self._PlyThick+self._InnerDepthBase),\
+                                        -(self._InnerDepthBase+self._LexanThick),\
                                         0)),YNorm).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
                              "width=%f"%(self._OuterHeightUnfolded),\
@@ -740,7 +741,7 @@ class MultiDemo(object):
         self.lexFrontL = Part.makePlane(self._OuterHeightUnfolded,\
                                      self._OuterWidthFolded,\
                                      origin.add(Base.Vector(0,\
-                                            -(self._PlyThick+self._InnerDepthBase),\
+                                            -(self._InnerDepthBase+self._LexanThick),\
                                             self._OuterHeightUnfolded)),\
                                      YNorm).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
@@ -756,10 +757,53 @@ class MultiDemo(object):
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'R'))
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'R'))
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'R'))
-
-
         
+        self.lidLeft = Part.makePlane(self._OuterHeightFolded,\
+                                      self._InnerDepthLid,\
+                                      origin.add(Base.Vector(self._BoardThick,\
+                                                             -(self._InnerDepthBase+self._LexanThick),\
+                                                             self._OuterHeightFolded)),\
+                                      XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthLid),\
+                             "length=%f"%(self._OuterHeightFolded))
+        self.lidRight = Part.makePlane(self._OuterHeightFolded,\
+                                       self._InnerDepthLid,\
+                                       origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,\
+                                                             -(self._InnerDepthBase+self._LexanThick),\
+                                                             0)),\
+                                       XNormR).extrude(RightExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthLid),\
+                             "length=%f"%(self._OuterHeightFolded))
+        self.lidBottom = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthLid,\
+                                     origin.add(Base.Vector(self._BoardThick,\
+                                                  -(self._InnerDepthBase+self._LexanThick+self._InnerDepthLid),\
+                                                  0)),\
+                                     ZNormB).extrude(BottomExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthLid),\
+                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+        self.lidTop = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
+                                     self._InnerDepthLid,\
+                                     origin.add(Base.Vector(self._BoardThick,\
+                                               -(self._InnerDepthBase+self._LexanThick+self._InnerDepthLid),\
+                                               self._OuterHeightFolded)),\
+                                     ZNormB).extrude(TopExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%(self._InnerDepthLid),\
+                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
         
+        self.lid = Part.makePlane(self._OuterHeightFolded,\
+                                  self._OuterWidthFolded,\
+                                  origin.add(Base.Vector(0,\
+                                        -(self._InnerDepthBase+self._LexanThick+self._InnerDepthLid+self._PlyThick),\
+                                        0)),\
+                                  YNorm).extrude(BackExtrude)
+        Material.AddMaterial("plywood","thick=3/8",\
+                             "width=%f"%(self._OuterWidthFolded),\
+                             "length=%f"%(self._OuterHeightFolded))
     _lexAnglePolys8ths = {\
         'R': [(8,0), (0,0), (0,-8), (1,-8), (1,-1), (8,-1), (8,0)],\
         'L': [(0,0), (0,8), (1,8),  (1,1),  (8,1),  (8,0),  (0,0)] \
@@ -870,6 +914,31 @@ class MultiDemo(object):
             obj.Label = self.name+n
             obj.ViewObject.ShapeColor=self._lexColor
             obj.ViewObject.Transparency = 90
+        obj = doc.addObject("Part::Feature",self.name+"_lidLeft")
+        obj.Shape = self.lidLeft
+        obj.Label = self.name+"_lidLeft"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
+        obj = doc.addObject("Part::Feature",self.name+"_lidRight")
+        obj.Shape = self.lidRight
+        obj.Label = self.name+"_lidRight"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
+        obj = doc.addObject("Part::Feature",self.name+"_lidBottom")
+        obj.Shape = self.lidBottom
+        obj.Label = self.name+"_lidBottom"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
+        obj = doc.addObject("Part::Feature",self.name+"_lidTop")
+        obj.Shape = self.lidTop
+        obj.Label = self.name+"_lidTop"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
+        obj = doc.addObject("Part::Feature",self.name+"_lid")
+        obj.Shape = self.lid
+        obj.Label = self.name+"_lid"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
 
 if __name__ == '__main__':
     doc = None
