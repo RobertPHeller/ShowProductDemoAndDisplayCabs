@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230624.0932>
+#  Last Modified : <230624.1452>
 #
 #  Description	
 #
@@ -41,7 +41,9 @@
 #*****************************************************************************
 
 
-import Part
+import Part, TechDraw, TechDrawGui
+import FreeCADGui
+from FreeCAD import Console
 from FreeCAD import Base
 import FreeCAD as App
 
@@ -50,6 +52,8 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import sys
 sys.path.append(os.path.dirname(__file__))
+
+import datetime
 
 class Material(object):
     __instances__ = list()
@@ -94,19 +98,85 @@ class Material(object):
             fp.write(",%s=%s"%(k,self.attrs[k]))
         fp.write("\n")
         
+class GenerateDrawings(object):
+    # doc.addObject('TechDraw::DrawSVGTemplate','USLetterLandscapeTemplate')
+    # doc.USLetterTemplate.Template = App.getResourceDir()+"Mod/TechDraw/Templates/USLetter_Landscape.svg"
+    # edt = doc.USLetterTemplate.EditableTexts    
+    # "CompanyName"
+    # "CompanyAddress"
+    # "DrawingTitle1"
+    # "DrawingTitle2"
+    # "DrawingTitle3"
+    # "DrawingNumber"
+    # "Revision"
+    # "DrawnBy"
+    # "CheckedBy"
+    # "Approved1"
+    # "Approved2"
+    # "Scale"
+    # "Code"
+    # "Weight"
+    # "Sheet"
+    # doc.USLetterTemplate.EditableTexts = edt
+    # doc.addObject('TechDraw::DrawPage','name')
+    # doc.name.Template = doc.USLetterTemplate
+    # edt = doc.name.Template.EditableTexts
+    # "DrawingTitle2"
+    # "Scale"
+    # "Sheet"
+    # doc.name.Template.EditableTexts = edt
+    __metaclass__ = ABCMeta
+    @abstractmethod
+    def generateDrawings(self,doc):
+        pass
+    def createTemplate(self,doc,title,numsheets,revision="A"):
+        self.drawtemplate = doc.addObject('TechDraw::DrawSVGTemplate','USLetterLandscapeTemplate')
+        self.drawtemplate.Template = App.getResourceDir()+"Mod/TechDraw/Templates/USLetter_Landscape.svg"
+        edt = self.drawtemplate.EditableTexts
+        edt['CompanyName'] = "Deepwoods Software"
+        edt['CompanyAddress'] = '51 Locke Hill Road, Wendell, MA 01379 USA'
+        edt['DrawingTitle1']= title
+        edt['DrawingTitle3']= ""
+        edt['DrawnBy'] = "Robert Heller"
+        edt['CheckedBy'] = ""
+        edt['Approved1'] = ""
+        edt['Approved2'] = ""
+        edt['Code'] = ""
+        edt['Weight'] = ''
+        edt['DrawingNumber'] = datetime.datetime.now().ctime()
+        edt['Revision'] = revision
+        self.drawtemplate.EditableTexts = edt
+        self.sheet = 0
+        self.sheetcount = numsheets
+    def createSheet(self,doc,sheettitle,scale="1"):
+        self.sheet = self.sheet + 1
+        sheetname = "Sheet%dOf%d"%(self.sheet,self.sheetcount)
+        thissheet = doc.addObject('TechDraw::DrawPage',sheetname)
+        thissheet.Template = self.drawtemplate
+        edt = thissheet.Template.EditableTexts
+        edt['DrawingTitle2']= sheettitle
+        edt['Scale'] = scale
+        edt['Sheet'] = "Sheet %d of %d"%(self.sheet,self.sheetcount)
+        thissheet.Template.EditableTexts = edt
+        thissheet.ViewObject.show()
+        return thissheet
+    
+        
 
-class ProductDisplay(object):
+
+
+class ProductDisplay(GenerateDrawings):
     _OuterWidth  = 3*12
     _OuterHeight = 3*12
     _BackODepth  = 7
     _LidODepth   = 2
     _PlyThick    = 3.0/8.0
     _BoardThick  = 3.0/4.0
-    _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
+    _woodColor   = (210/255.0,180/255.0,140/255.0)
     _pegthick    = 1.0/8.0
     _pegholedia  = 3.0/16.0
     _pegholespace = 1
-    _pegboardColor = tuple([139/255.0,35/255.0,35/255.0])
+    _pegboardColor = (139/255.0,35/255.0,35/255.0)
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -294,8 +364,196 @@ class ProductDisplay(object):
         obj.Shape = self.top_lid
         obj.Label = self.name+"_top_lid"
         obj.ViewObject.ShapeColor=self._woodColor
-        
-class YardDemo(object):
+    def __caseBackNoPegboard__(self,doc):
+        black = (0.0,0.0,0.0)
+        result=list()
+        obj = doc.addObject("Part::Feature",self.name+"_back")
+        obj.Shape = self.back
+        obj.Label = self.name+"_back"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_left")
+        obj.Shape = self.left
+        obj.Label = self.name+"_left"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_leftPegB")
+        obj.Shape = self.leftPegB
+        obj.Label = self.name+"_leftPegB"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_right")
+        obj.Shape = self.right
+        obj.Label = self.name+"_right"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_rightPegB")
+        obj.Shape = self.rightPegB
+        obj.Label = self.name+"_rightPegB"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_bottom")
+        obj.Shape = self.bottom
+        obj.Label = self.name+"_bottom"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_bottomPegB")
+        obj.Shape = self.bottomPegB
+        obj.Label = self.name+"_bottomPegB"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_top")
+        obj.Shape = self.top
+        obj.Label = self.name+"_top"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_topPegB")
+        obj.Shape = self.topPegB
+        obj.Label = self.name+"_topPegB"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        return result
+    def __caseBack__(self,doc):
+        black = (0.0,0.0,0.0)
+        result=self.__caseBackNoPegboard__(doc)
+        obj = doc.addObject("Part::Feature",self.name+"_pegboard")
+        obj.Shape = self.pegboard
+        obj.Label = self.name+"_pegboard"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        return result
+    def __lid__(self,doc):
+        black = (0.0,0.0,0.0)
+        result=list()
+        obj = doc.addObject("Part::Feature",self.name+"_lid")
+        obj.Shape = self.lid
+        obj.Label = self.name+"_lid"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_left_lid")
+        obj.Shape = self.left_lid
+        obj.Label = self.name+"_left_lid"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_right_lid")
+        obj.Shape = self.right_lid
+        obj.Label = self.name+"_right_lid"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_bottom_lid")
+        obj.Shape = self.bottom_lid
+        obj.Label = self.name+"_bottom_lid"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_top_lid")
+        obj.Shape = self.top_lid
+        obj.Label = self.name+"_top_lid"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        return result        
+    def generateDrawings(self,doc):
+        self.createTemplate(doc,"Product Display Case",3)
+        sheet1 = self.createSheet(doc,"Case Back (no pegboard)")
+        tv = doc.addObject('TechDraw::DrawViewPart','TopViewNoPeg')
+        sheet1.addView(tv)
+        caseBackNoPegboard = self.__caseBackNoPegboard__(doc)
+        tv.Source = caseBackNoPegboard
+        tv.Direction=(0.0,1.0,0.0)
+        tv.Scale = 1.0
+        tv.X = 60
+        tv.Y = 160
+        rv = doc.addObject('TechDraw::DrawViewPart','RightViewNoPeg')
+        sheet1.addView(rv)
+        rv.Source = caseBackNoPegboard
+        rv.Direction=(1.0,0.0,0.0)
+        rv.Scale = 1.0
+        rv.X = 160
+        rv.Y = 160
+        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewNoPeg')
+        sheet1.addView(bv)
+        bv.Source = caseBackNoPegboard
+        bv.Direction=(0.0,0.0,1.0)
+        bv.Scale = 1.0
+        bv.X = 60
+        bv.Y = 60
+        doc.recompute()
+        TechDrawGui.exportPageAsPdf(sheet1,"ProductDisplayCaseP1.pdf")
+        #doc.removeObject(sheet1.Label)
+        for o in caseBackNoPegboard:
+            doc.removeObject(o.Label)
+        sheet2 = self.createSheet(doc,"Case Back (with pegboard)")
+        tv = doc.addObject('TechDraw::DrawViewPart','TopViewPeg')
+        caseBack = self.__caseBack__(doc)
+        sheet2.addView(tv)
+        tv.Source = caseBack 
+        tv.Direction=(0.0,1.0,0.0)
+        tv.Scale = 1.0
+        tv.X = 60
+        tv.Y = 160
+        rv = doc.addObject('TechDraw::DrawViewPart','RightView')
+        sheet2.addView(rv)
+        rv.Source = caseBack
+        rv.Direction=(1.0,0.0,0.0)
+        rv.Scale = 1.0
+        rv.X = 160
+        rv.Y = 160
+        bv = doc.addObject('TechDraw::DrawViewPart','BottomView')
+        sheet2.addView(bv)
+        bv.Source = caseBack
+        bv.Direction=(0.0,0.0,1.0)
+        bv.Scale = 1.0
+        bv.X = 60
+        bv.Y = 60
+        doc.recompute()
+        TechDrawGui.exportPageAsPdf(sheet2,"ProductDisplayCaseP2.pdf")
+        #doc.removeObject(sheet2.Label)
+        for o in caseBack:
+            doc.removeObject(o.Label)
+        sheet3 = self.createSheet(doc,"Case Lid")
+        tv = doc.addObject('TechDraw::DrawViewPart','TopViewLid')
+        sheet3.addView(tv)
+        lid = self.__lid__(doc)
+        tv.Source = lid
+        tv.Direction=(0.0,1.0,0.0)
+        tv.Scale = 1.0
+        tv.X = 60
+        tv.Y = 160
+        rv = doc.addObject('TechDraw::DrawViewPart','RightViewLid')
+        sheet3.addView(rv)
+        rv.Source = lid
+        rv.Direction=(1.0,0.0,0.0)
+        rv.Scale = 1.0
+        rv.X = 160
+        rv.Y = 160
+        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewLid')
+        sheet3.addView(bv)
+        bv.Source = lid
+        bv.Direction=(0.0,0.0,1.0)
+        bv.Scale = 1.0
+        bv.X = 60
+        bv.Y = 60
+        doc.recompute()
+        TechDrawGui.exportPageAsPdf(sheet3,"ProductDisplayCaseP3.pdf")
+        #doc.removeObject(sheet3.Label)
+        for o in lid:
+            doc.removeObject(o.Label)
+
+class YardDemo(GenerateDrawings):
     _OuterWidth  = 12
     _OuterLength = 3*12
     _BaseHeight  = 6.25
@@ -303,8 +561,8 @@ class YardDemo(object):
     _PlyThick    = 1.0/4.0
     _LexanThick  = 1.0/8.0
     _BoardThick  = 3.0/4.0
-    _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
-    _lexColor    = tuple([1.0,1.0,1.0])
+    _woodColor   = (210/255.0,180/255.0,140/255.0)
+    _lexColor    = (1.0,1.0,1.0)
     _roadbedPoly = [
         (0.000000,8),\
         (0.000000,7.941824),\
@@ -316,10 +574,10 @@ class YardDemo(object):
         (0.000000,1.375000),\
         (0.000000,8)\
     ]
-    _roadbedColor = tuple([.5,.5,.5])
+    _roadbedColor = (.5,.5,.5)
     _roadbedThick = 1.0/8.0
     _masoniteThick = 1.0/8.0
-    _masoniteColor = tuple([139/255.0,35/255.0,35/255.0])
+    _masoniteColor = (139/255.0,35/255.0,35/255.0)
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -609,8 +867,12 @@ class YardDemo(object):
         obj.Label = self.name+"_topCover"
         obj.ViewObject.ShapeColor=self._masoniteColor
         obj.ViewObject.Transparency = 30
+    def generateDrawings(self,doc):
+        self.createTemplate(doc,"Yard Ladder Demo",2)
+        sheet1 = self.createSheet(doc,"Base")
+        sheet2 = self.createSheet(doc,"Cover")
         
-class MultiDemo(object):
+class MultiDemo(GenerateDrawings):
     # control panel: 6.5"x4"
     # turnouts     : 9.66666" each
     # 8 Ball Club  : 8"
@@ -634,8 +896,8 @@ class MultiDemo(object):
     _ShelfHeight = 6
     _LexanThick  = 1.0/8.0
     _BoardThick  = 3.0/4.0
-    _woodColor   = tuple([210/255.0,180/255.0,140/255.0])
-    _lexColor    = tuple([1.0,1.0,1.0])
+    _woodColor   = (210/255.0,180/255.0,140/255.0)
+    _lexColor    = (1.0,1.0,1.0)
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -939,6 +1201,10 @@ class MultiDemo(object):
         obj.Label = self.name+"_lid"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 50
+    def generateDrawings(self,doc):
+        self.createTemplate(doc,"Multi Demo",2)
+        sheet1 = self.createSheet(doc,"Base")
+        sheet2 = self.createSheet(doc,"Cover")
 
 if __name__ == '__main__':
     doc = None
@@ -956,19 +1222,21 @@ if __name__ == '__main__':
     Gui.ActiveDocument=pd_doc
     Gui.SendMsgToActiveView("ViewFit")
     Gui.activeDocument().activeView().viewIsometric()
-    yd_doc = App.newDocument('YardDemo')
-    yd = YardDemo('YardDemo',Base.Vector(0,0,0))
-    yd.show(yd_doc)
-    App.ActiveDocument=yd_doc
-    Gui.ActiveDocument=yd_doc
-    Gui.SendMsgToActiveView("ViewFit")
-    Gui.activeDocument().activeView().viewIsometric()
-    md_doc = App.newDocument('MultiDemo')
-    md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
-    md.show(md_doc)
-    App.ActiveDocument=md_doc
-    Gui.ActiveDocument=md_doc
-    Gui.SendMsgToActiveView("ViewFit")
-    Gui.activeDocument().activeView().viewFront()
+    pd.generateDrawings(pd_doc)
+    #yd_doc = App.newDocument('YardDemo')
+    #yd = YardDemo('YardDemo',Base.Vector(0,0,0))
+    #yd.show(yd_doc)
+    #App.ActiveDocument=yd_doc
+    #Gui.ActiveDocument=yd_doc
+    #Gui.SendMsgToActiveView("ViewFit")
+    #Gui.activeDocument().activeView().viewIsometric()
+    #yd.generateDrawings(yd_doc)
+    #md_doc = App.newDocument('MultiDemo')
+    #md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
+    #md.show(md_doc)
+    #App.ActiveDocument=md_doc
+    #Gui.ActiveDocument=md_doc
+    #Gui.SendMsgToActiveView("ViewFit")
+    #Gui.activeDocument().activeView().viewIsometric()
+    #md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
-    
