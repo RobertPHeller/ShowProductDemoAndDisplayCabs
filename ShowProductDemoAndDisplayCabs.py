@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230624.1452>
+#  Last Modified : <230624.1655>
 #
 #  Description	
 #
@@ -493,6 +493,9 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet1,"ProductDisplayCaseP1.pdf")
+        #doc.removeObject(tv.Label)
+        #doc.removeObject(rv.Label)
+        #doc.removeObject(bv.Label)
         #doc.removeObject(sheet1.Label)
         for o in caseBackNoPegboard:
             doc.removeObject(o.Label)
@@ -521,6 +524,9 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet2,"ProductDisplayCaseP2.pdf")
+        #doc.removeObject(tv.Label)
+        #doc.removeObject(rv.Label)
+        #doc.removeObject(bv.Label)
         #doc.removeObject(sheet2.Label)
         for o in caseBack:
             doc.removeObject(o.Label)
@@ -549,6 +555,9 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet3,"ProductDisplayCaseP3.pdf")
+        #doc.removeObject(tv.Label)
+        #doc.removeObject(rv.Label)
+        #doc.removeObject(bv.Label)
         #doc.removeObject(sheet3.Label)
         for o in lid:
             doc.removeObject(o.Label)
@@ -867,10 +876,216 @@ class YardDemo(GenerateDrawings):
         obj.Label = self.name+"_topCover"
         obj.ViewObject.ShapeColor=self._masoniteColor
         obj.ViewObject.Transparency = 30
+    def __yardDemoBase__(self,doc):
+        black = (0.0,0.0,0.0)
+        result = list()
+        obj = doc.addObject("Part::Feature",self.name+"_layoutbase")
+        obj.Shape = self.layoutbase
+        obj.Label = self.name+"_layoutbase"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_front")
+        obj.Shape = self.front
+        obj.Label = self.name+"_front"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_back")
+        obj.Shape = self.back
+        obj.Label = self.name+"_back"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_left")
+        obj.Shape = self.left
+        obj.Label = self.name+"_left"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_right")
+        obj.Shape = self.right
+        obj.Label = self.name+"_right"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexfront")
+        obj.Shape = self.lexfront
+        obj.Label = self.name+"_lexfront"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexback")
+        obj.Shape = self.lexback
+        obj.Label = self.name+"_lexback"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexleft")
+        obj.Shape = self.lexleft
+        obj.Label = self.name+"_lexleft"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexright")
+        obj.Shape = self.lexright
+        obj.Label = self.name+"_lexright"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_roadbed")
+        obj.Shape = self.roadbed
+        obj.Label = self.name+"_roadbed"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_cornerA")
+        obj.Shape = self.cornerA
+        obj.Label = self.name+"_cornerA"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_cornerB")
+        obj.Shape = self.cornerB
+        obj.Label = self.name+"_cornerB"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_cornerC")
+        obj.Shape = self.cornerC
+        obj.Label = self.name+"_cornerC"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_cornerD")
+        obj.Shape = self.cornerD
+        obj.Label = self.name+"_cornerD"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountF1")
+        obj.Shape = self.lexmountF1
+        obj.Label = self.name+"_lexmountF1"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountF2")
+        obj.Shape = self.lexmountF2
+        obj.Label = self.name+"_lexmountF2"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountB1")
+        obj.Shape = self.lexmountB1
+        obj.Label = self.name+"_lexmountB1"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_lexmountB2")
+        obj.Shape = self.lexmountB2
+        obj.Label = self.name+"_lexmountB2"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        return result
+    def __yardDemoCover__(self,doc):
+        black = (0.0,0.0,0.0)
+        result = list()
+        obj = doc.addObject("Part::Feature",self.name+"_frontCover")
+        obj.Shape = self.frontCover
+        obj.Label = self.name+"_frontCover"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_backCover")
+        obj.Shape = self.backCover
+        obj.Label = self.name+"_backCover"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_leftCover")
+        obj.Shape = self.leftCover
+        obj.Label = self.name+"_leftCover"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_rightCover")
+        obj.Shape = self.rightCover
+        obj.Label = self.name+"_rightCover"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_topCover")
+        obj.Shape = self.topCover
+        obj.Label = self.name+"_topCover"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        return result
     def generateDrawings(self,doc):
         self.createTemplate(doc,"Yard Ladder Demo",2)
         sheet1 = self.createSheet(doc,"Base")
+        base = self.__yardDemoBase__(doc)
+        tv = doc.addObject('TechDraw::DrawViewPart','TopViewBase')
+        sheet1.addView(tv)
+        tv.Source = base
+        tv.Direction=(0.0,1.0,0.0)
+        tv.Scale = 1.0
+        tv.X = 60
+        tv.Y = 160
+        rv = doc.addObject('TechDraw::DrawViewPart','RightViewBase')
+        sheet1.addView(rv)
+        rv.Source = base
+        rv.Direction=(1.0,0.0,0.0)
+        rv.Scale = 1.0
+        rv.X = 160
+        rv.Y = 160
+        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewBase')
+        sheet1.addView(bv)
+        bv.Source = base
+        bv.Direction=(0.0,0.0,1.0)
+        bv.Scale = 1.0
+        bv.X = 60
+        bv.Y = 60 
+        doc.recompute()
+        TechDrawGui.exportPageAsPdf(sheet1,"YardLadderDemoP1.pdf")
+        #doc.removeObject(tv.Label)
+        #doc.removeObject(rv.Label)
+        #doc.removeObject(bv.Label)
+        #doc.removeObject(sheet1.Label)
+        for o in base:
+            doc.removeObject(o.Label)
         sheet2 = self.createSheet(doc,"Cover")
+        cover = self.__yardDemoCover__(doc)
+        tv = doc.addObject('TechDraw::DrawViewPart','TopViewCover')
+        sheet2.addView(tv)
+        tv.Source = cover
+        tv.Direction=(0.0,1.0,0.0)
+        tv.Scale = 1.0
+        tv.X = 60
+        tv.Y = 160
+        rv = doc.addObject('TechDraw::DrawViewPart','RightViewCover')
+        sheet2.addView(rv)
+        rv.Source = cover
+        rv.Direction=(1.0,0.0,0.0)
+        rv.Scale = 1.0
+        rv.X = 160
+        rv.Y = 160
+        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewCover')
+        sheet2.addView(bv)
+        bv.Source = cover
+        bv.Direction=(0.0,0.0,1.0)
+        bv.Scale = 1.0
+        bv.X = 60
+        bv.Y = 60 
+        doc.recompute()
+        TechDrawGui.exportPageAsPdf(sheet2,"YardLadderDemoP2.pdf")
+        #doc.removeObject(tv.Label)
+        #doc.removeObject(rv.Label)
+        #doc.removeObject(bv.Label)
+        #doc.removeObject(sheet1.Label)
+        for o in cover:
+            doc.removeObject(o.Label)
         
 class MultiDemo(GenerateDrawings):
     # control panel: 6.5"x4"
@@ -1202,9 +1417,10 @@ class MultiDemo(GenerateDrawings):
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 50
     def generateDrawings(self,doc):
-        self.createTemplate(doc,"Multi Demo",2)
+        self.createTemplate(doc,"Multi Demo",3)
         sheet1 = self.createSheet(doc,"Base")
-        sheet2 = self.createSheet(doc,"Cover")
+        sheet2 = self.createSheet(doc,"Lexan Detail")
+        sheet3 = self.createSheet(doc,"Cover")
 
 if __name__ == '__main__':
     doc = None
@@ -1223,20 +1439,20 @@ if __name__ == '__main__':
     Gui.SendMsgToActiveView("ViewFit")
     Gui.activeDocument().activeView().viewIsometric()
     pd.generateDrawings(pd_doc)
-    #yd_doc = App.newDocument('YardDemo')
-    #yd = YardDemo('YardDemo',Base.Vector(0,0,0))
-    #yd.show(yd_doc)
-    #App.ActiveDocument=yd_doc
-    #Gui.ActiveDocument=yd_doc
-    #Gui.SendMsgToActiveView("ViewFit")
-    #Gui.activeDocument().activeView().viewIsometric()
-    #yd.generateDrawings(yd_doc)
-    #md_doc = App.newDocument('MultiDemo')
-    #md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
-    #md.show(md_doc)
-    #App.ActiveDocument=md_doc
-    #Gui.ActiveDocument=md_doc
-    #Gui.SendMsgToActiveView("ViewFit")
-    #Gui.activeDocument().activeView().viewIsometric()
-    #md.generateDrawings(md_doc)
+    yd_doc = App.newDocument('YardDemo')
+    yd = YardDemo('YardDemo',Base.Vector(0,0,0))
+    yd.show(yd_doc)
+    App.ActiveDocument=yd_doc
+    Gui.ActiveDocument=yd_doc
+    Gui.SendMsgToActiveView("ViewFit")
+    Gui.activeDocument().activeView().viewIsometric()
+    yd.generateDrawings(yd_doc)
+    md_doc = App.newDocument('MultiDemo')
+    md = MultiDemo('MultiDemo',Base.Vector(0,0,0))
+    md.show(md_doc)
+    App.ActiveDocument=md_doc
+    Gui.ActiveDocument=md_doc
+    Gui.SendMsgToActiveView("ViewFit")
+    Gui.activeDocument().activeView().viewIsometric()
+    md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
