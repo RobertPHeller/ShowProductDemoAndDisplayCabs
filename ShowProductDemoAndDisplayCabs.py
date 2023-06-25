@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230625.0923>
+#  Last Modified : <230625.0940>
 #
 #  Description	
 #
@@ -288,7 +288,7 @@ class ProductDisplay(GenerateDrawings):
         pextrude=Base.Vector(0,self._pegthick,0)
         n = Base.Vector(0,1,0)
         peg = Part.makePlane(width,height,o,n).extrude(pextrude)
-        return peg
+        #return peg
         hole_y = 1
         while hole_y < height:
             #sys.__stderr__.write("*** ProductDisplay.__pegboard(): hole_y = %f\n"%(hole_y))
@@ -493,10 +493,10 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet1,"ProductDisplayCaseP1.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet1.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet1.Label)
         for o in caseBackNoPegboard:
             doc.removeObject(o.Label)
         sheet2 = self.createSheet(doc,"Case Back (with pegboard)")
@@ -524,10 +524,10 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet2,"ProductDisplayCaseP2.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet2.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet2.Label)
         for o in caseBack:
             doc.removeObject(o.Label)
         sheet3 = self.createSheet(doc,"Case Lid")
@@ -555,10 +555,10 @@ class ProductDisplay(GenerateDrawings):
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet3,"ProductDisplayCaseP3.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet3.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet3.Label)
         for o in lid:
             doc.removeObject(o.Label)
 
@@ -1049,10 +1049,10 @@ class YardDemo(GenerateDrawings):
         bv.Y = 60 
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet1,"YardLadderDemoP1.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet1.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet1.Label)
         for o in base:
             doc.removeObject(o.Label)
         sheet2 = self.createSheet(doc,"Cover")
@@ -1080,10 +1080,10 @@ class YardDemo(GenerateDrawings):
         bv.Y = 60 
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet2,"YardLadderDemoP2.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet1.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet1.Label)
         for o in cover:
             doc.removeObject(o.Label)
         
@@ -1571,10 +1571,10 @@ class MultiDemo(GenerateDrawings):
         bv.Y = 60 
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet1,"MultiDemoP1.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet1.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet1.Label)
         for o in base:
             doc.removeObject(o.Label)
         sheet2 = self.createSheet(doc,"Lexan Detail")
@@ -1602,10 +1602,10 @@ class MultiDemo(GenerateDrawings):
         bv.Y = 60 
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet2,"MultiDemoP2.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet2.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet2.Label)
         for o in lexan:
             doc.removeObject(o.Label)
         sheet3 = self.createSheet(doc,"Cover")
@@ -1633,10 +1633,10 @@ class MultiDemo(GenerateDrawings):
         bv.Y = 60 
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet3,"MultiDemoP3.pdf")
-        #doc.removeObject(tv.Label)
-        #doc.removeObject(rv.Label)
-        #doc.removeObject(bv.Label)
-        #doc.removeObject(sheet3.Label)
+        doc.removeObject(tv.Label)
+        doc.removeObject(rv.Label)
+        doc.removeObject(bv.Label)
+        doc.removeObject(sheet3.Label)
         for o in cover:
             doc.removeObject(o.Label)
 
