@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230625.0956>
+#  Last Modified : <230625.1021>
 #
 #  Description	
 #
@@ -1626,4 +1626,4 @@ if __name__ == '__main__':
     Gui.activeDocument().activeView().viewIsometric()
     md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
-    #sys.exit(1)
+    sys.exit(1)
