@@ -1,3 +1,4 @@
+#!/usr/bin/freecad
 #*****************************************************************************
 #
 #  System        : 
@@ -8,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230625.1021>
+#  Last Modified : <230625.1022>
 #
 #  Description	
 #
