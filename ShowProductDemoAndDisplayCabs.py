@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230627.1137>
+#  Last Modified : <230627.1612>
 #
 #  Description	
 #
@@ -55,6 +55,8 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 import datetime
+
+from COBLEDStrip import *
 
 class Material(object):
     __instances__ = list()
@@ -305,6 +307,26 @@ class ProductDisplay(GenerateDrawings):
         self.braceR = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                                 .extrude(BackBraceExtrude)
         Material.AddMaterial("plywood","thick=3/8",pstring)
+        self.leftlight = COBLEDStripYard(name+"_leftledstrip",\
+                        origin.add(Base.Vector(self._BoardThick,\
+                                   self._BackODepth-(1.8/25.4),\
+                                   self._BoardThick)),'VL')
+        Material.AddMaterial("COBLEDStrip",\
+                             "length=%d"%(self.leftlight.Length))
+        self.rightlight = COBLEDStripYard(name+"_rightledstrip",\
+                    origin.add(Base.Vector(self._OuterWidth-self._BoardThick,\
+                               self._BackODepth-(1.8/25.4),\
+                               self._OuterHeight-self._BoardThick)),\
+                               'VR')
+        Material.AddMaterial("COBLEDStrip",\
+                             "length=%d"%(self.leftlight.Length))
+        self.toplight = COBLEDStripYard(name+"_topledstrip",\
+                    origin.add(Base.Vector(self._OuterWidth-self._BoardThick,\
+                               self._BackODepth-(1.8/25.4),\
+                               self._OuterHeight-self._BoardThick)),\
+                               'H')
+        Material.AddMaterial("COBLEDStrip",\
+                             "length=%d"%(self.leftlight.Length))
     def __pegboard(self,width,height,o=Base.Vector(0,0,0)):
         pextrude=Base.Vector(0,self._pegthick,0)
         n = Base.Vector(0,1,0)
@@ -369,22 +391,27 @@ class ProductDisplay(GenerateDrawings):
         obj.Shape = self.lid
         obj.Label = self.name+"_lid"
         obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
         obj = doc.addObject("Part::Feature",self.name+"_left_lid")
         obj.Shape = self.left_lid
         obj.Label = self.name+"_left_lid"
         obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
         obj = doc.addObject("Part::Feature",self.name+"_right_lid")
         obj.Shape = self.right_lid
         obj.Label = self.name+"_right_lid"
         obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
         obj = doc.addObject("Part::Feature",self.name+"_bottom_lid")
         obj.Shape = self.bottom_lid
         obj.Label = self.name+"_bottom_lid"
         obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
         obj = doc.addObject("Part::Feature",self.name+"_top_lid")
         obj.Shape = self.top_lid
         obj.Label = self.name+"_top_lid"
         obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 50
         obj = doc.addObject("Part::Feature",self.name+"_braceL")
         obj.Shape = self.braceL
         obj.Label = self.name+"_braceL"
@@ -393,6 +420,9 @@ class ProductDisplay(GenerateDrawings):
         obj.Shape = self.braceR
         obj.Label = self.name+"_braceR"
         obj.ViewObject.ShapeColor=self._woodColor
+        self.leftlight.show(doc)
+        self.rightlight.show(doc)
+        self.toplight.show(doc)
     def __caseBackNoPegboard__(self,doc):
         black = (0.0,0.0,0.0)
         result=list()
