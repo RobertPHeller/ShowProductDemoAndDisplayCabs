@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230625.1022>
+#  Last Modified : <230627.1137>
 #
 #  Description	
 #
@@ -178,6 +178,7 @@ class ProductDisplay(GenerateDrawings):
     _pegholedia  = 3.0/16.0
     _pegholespace = 1
     _pegboardColor = (139/255.0,35/255.0,35/255.0)
+    _backbraceSize = 12
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -285,6 +286,25 @@ class ProductDisplay(GenerateDrawings):
         Material.AddMaterial("pine","thick=3/4",\
                              "width=%f"%(self._LidODepth-self._PlyThick),\
                              "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+        polypoints = list()
+        pstring = "polygon=["
+        BackBraceExtrude = Base.Vector(0,-self._PlyThick,0)
+        for tup in [(0,0),(self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._PlyThick,0,z)))
+            pstring = pstring + "(%f,%f)"%(x,z)
+        pstring = pstring + "]"
+        self.braceL = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                        .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
+        polypoints = list()
+        BackBraceExtrude = Base.Vector(0,-self._PlyThick,0)
+        for tup in [(0,0),(-self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._OuterWidth-self._PlyThick,0,z)))
+        self.braceR = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                                .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
     def __pegboard(self,width,height,o=Base.Vector(0,0,0)):
         pextrude=Base.Vector(0,self._pegthick,0)
         n = Base.Vector(0,1,0)
@@ -364,6 +384,14 @@ class ProductDisplay(GenerateDrawings):
         obj = doc.addObject("Part::Feature",self.name+"_top_lid")
         obj.Shape = self.top_lid
         obj.Label = self.name+"_top_lid"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_braceL")
+        obj.Shape = self.braceL
+        obj.Label = self.name+"_braceL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_braceR")
+        obj.Shape = self.braceR
+        obj.Label = self.name+"_braceR"
         obj.ViewObject.ShapeColor=self._woodColor
     def __caseBackNoPegboard__(self,doc):
         black = (0.0,0.0,0.0)
@@ -1084,6 +1112,7 @@ class MultiDemo(GenerateDrawings):
     _BoardThick  = 3.0/4.0
     _woodColor   = (210/255.0,180/255.0,140/255.0)
     _lexColor    = (1.0,1.0,1.0)
+    _backbraceSize = 12
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -1252,6 +1281,38 @@ class MultiDemo(GenerateDrawings):
         Material.AddMaterial("plywood","thick=3/8",\
                              "width=%f"%(self._OuterWidthFolded),\
                              "length=%f"%(self._OuterHeightFolded))
+        polypoints = list()
+        pstring = "polygon=["
+        BackBraceExtrude = Base.Vector(0,self._PlyThick,0)
+        for tup in [(0,0),(self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._PlyThick,self._PlyThick,z)))
+            pstring = pstring + "(%f,%f)"%(x,z)
+        pstring = pstring + "]"
+        self.braceRL = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                        .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
+        polypoints = list()
+        for tup in [(0,0),(-self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._OuterWidthFolded-self._PlyThick,self._PlyThick,z)))
+        self.braceRR = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                                .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
+        polypoints = list()        
+        for tup in [(0,0),(self._backbraceSize,0),(0,-self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._PlyThick,self._PlyThick,z+self._OuterHeightFolded)))
+        self.braceLL = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                            .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
+        polypoints = list()
+        for tup in [(0,0),(-self._backbraceSize,0),(0,-self._backbraceSize),(0,0)]:
+            x,z = tup
+            polypoints.append(origin.add(Base.Vector(x+self._OuterWidthFolded-self._PlyThick,self._PlyThick,z+self._OuterHeightFolded)))
+        self.braceLR = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
+                                .extrude(BackBraceExtrude)
+        Material.AddMaterial("plywood","thick=3/8",pstring)
     _lexAnglePolys8ths = {\
         'R': [(8,0), (0,0), (0,-8), (1,-8), (1,-1), (8,-1), (8,0)],\
         'L': [(0,0), (0,8), (1,8),  (1,1),  (8,1),  (8,0),  (0,0)] \
@@ -1387,6 +1448,22 @@ class MultiDemo(GenerateDrawings):
         obj.Label = self.name+"_lid"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 50
+        obj = doc.addObject("Part::Feature",self.name+"_braceRL")
+        obj.Shape = self.braceRL
+        obj.Label = self.name+"_braceRL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_braceLR")
+        obj.Shape = self.braceLR
+        obj.Label = self.name+"_braceLR"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_braceLL")
+        obj.Shape = self.braceLL
+        obj.Label = self.name+"_braceLL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj = doc.addObject("Part::Feature",self.name+"_braceRR")
+        obj.Shape = self.braceRR
+        obj.Label = self.name+"_braceRR"
+        obj.ViewObject.ShapeColor=self._woodColor
     def __base__(self,doc):
         black = (0.0,0.0,0.0)
         result = list()
@@ -1627,4 +1704,4 @@ if __name__ == '__main__':
     Gui.activeDocument().activeView().viewIsometric()
     md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
-    sys.exit(1)
+    #sys.exit(1)
