@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230627.1612>
+#  Last Modified : <230628.1438>
 #
 #  Description	
 #
@@ -57,6 +57,7 @@ sys.path.append(os.path.dirname(__file__))
 import datetime
 
 from COBLEDStrip import *
+from Electrical import *
 
 class Material(object):
     __instances__ = list()
@@ -1137,7 +1138,7 @@ class MultiDemo(GenerateDrawings):
     _InnerDepthLid  = 1
     _PlyThick    = 3.0/8.0
     _BirchPlyThick = 1.0/4.0
-    _ShelfHeight = 6
+    _ShelfHeight = 7
     _LexanThick  = 1.0/8.0
     _BoardThick  = 3.0/4.0
     _woodColor   = (210/255.0,180/255.0,140/255.0)
@@ -1234,8 +1235,8 @@ class MultiDemo(GenerateDrawings):
         for x in [self._BoardThick+1,self._OuterWidthFolded/4,\
                   self._OuterWidthFolded/2,3*(self._OuterWidthFolded/4),\
                   self._OuterWidthFolded-(2*self._BoardThick)-1]:
-            self.shelfRBraces.append(self.__shelfBrace__(x,self._InnerDepthBase,'R'))
-            self.shelfLBraces.append(self.__shelfBrace__(x,self._OuterHeightFolded-self._InnerDepthBase,'L'))
+            self.shelfRBraces.append(self.__shelfBrace__(x,self._ShelfHeight,'R'))
+            self.shelfLBraces.append(self.__shelfBrace__(x,self._OuterHeightFolded-self._ShelfHeight,'L'))
         LexFrontExtrude = Base.Vector(0,self._LexanThick,0)
         self.lexFrontR = Part.makePlane(self._OuterHeightUnfolded,\
                                      self._OuterWidthFolded,\
@@ -1261,7 +1262,7 @@ class MultiDemo(GenerateDrawings):
         self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'L'))
 
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight/2,'R'))
-        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'R'))
+        #self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'R'))
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'R'))
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'R'))
         
@@ -1343,6 +1344,25 @@ class MultiDemo(GenerateDrawings):
         self.braceLR = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                                 .extrude(BackBraceExtrude)
         Material.AddMaterial("plywood","thick=3/8",pstring)
+        self.electricboxes = list()
+        for x in [self._BoardThick+1,self._OuterWidthFolded/4,\
+                  self._OuterWidthFolded/2,3*(self._OuterWidthFolded/4),]:
+            box=SingleGangUtilityBox(self.name+"_boxR1",origin.add(Base.Vector(\
+                        x+self._BoardThick,-(SingleGangUtilityBox.Depth+self._PlyThick),self._BoardThick)))
+            Material.AddMaterial("utility box","Gang=Single")
+            Material.AddMaterial("outlet","type=duplex","voltage=125","current=15A")
+            cover=SingleGangUtilityOutletCover(self.name+"_coverR1",\
+                                    box.origin.add(Base.Vector(0,-SingleGangUtilityOutletCover.Depth,0)))
+            Material.AddMaterial("utility box cover","type=duplex")
+            self.electricboxes.append((box,cover))
+            box=SingleGangUtilityBox(self.name+"_boxR1",origin.add(Base.Vector(\
+                        x+self._BoardThick,-(SingleGangUtilityBox.Depth+self._PlyThick),self._OuterHeightFolded-self._BoardThick-SingleGangUtilityBox.Width)))
+            Material.AddMaterial("utility box","Gang=Single")
+            Material.AddMaterial("outlet","type=duplex","voltage=125","current=15A")
+            cover=SingleGangUtilityOutletCover(self.name+"_coverR1",\
+                                    box.origin.add(Base.Vector(0,-SingleGangUtilityOutletCover.Depth,0)))
+            Material.AddMaterial("utility box cover","type=duplex")
+            self.electricboxes.append((box,cover))
     _lexAnglePolys8ths = {\
         'R': [(8,0), (0,0), (0,-8), (1,-8), (1,-1), (8,-1), (8,0)],\
         'L': [(0,0), (0,8), (1,8),  (1,1),  (8,1),  (8,0),  (0,0)] \
@@ -1494,6 +1514,10 @@ class MultiDemo(GenerateDrawings):
         obj.Shape = self.braceRR
         obj.Label = self.name+"_braceRR"
         obj.ViewObject.ShapeColor=self._woodColor
+        for tup in self.electricboxes:
+            box,cover = tup
+            box.show(doc)
+            cover.show(doc)
     def __base__(self,doc):
         black = (0.0,0.0,0.0)
         result = list()
@@ -1731,7 +1755,7 @@ if __name__ == '__main__':
     App.ActiveDocument=md_doc
     Gui.ActiveDocument=md_doc
     Gui.SendMsgToActiveView("ViewFit")
-    Gui.activeDocument().activeView().viewIsometric()
+    Gui.activeDocument().activeView().viewFront()
     md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
     #sys.exit(1)
