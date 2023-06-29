@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Tue Jun 27 14:09:33 2023
-#  Last Modified : <230627.1455>
+#  Last Modified : <230629.0912>
 #
 #  Description	
 #
@@ -58,13 +58,13 @@ class COBLEDStripBase(object):
         pass
     @property
     def Width(self):
-        return 8/25.4
+        return 8
     @property
     def Thick(self):
-        return 1.8/25.4
+        return 1.8
     @property
     def SectionLength(self):
-        return 50/25.4
+        return 50
     @property
     def Color(self):
         return (255/255.0,255/255.0,224/255.0)

@@ -8,7 +8,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Wed Jun 28 09:05:55 2023
-#  Last Modified : <230628.1128>
+#  Last Modified : <230629.0911>
 #
 #  Description	
 #
@@ -52,9 +52,9 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 class SingleGangUtilityBox(object):
-    Width=2.125
-    Height=4
-    Depth=1.875
+    Width=2.125*25.4
+    Height=4*25.4
+    Depth=1.875*25.4
     Color=(.75,.75,.75)
     def __init__(self,name,origin,orientation='H'):
         self.name = name
@@ -80,14 +80,15 @@ class SingleGangUtilityBox(object):
         obj.ViewObject.ShapeColor=self.Color
 
 class SingleGangUtilityOutletCover(object):
-    Width=2.125
-    Height=4.
-    Depth=.25
+    Width=2.125*25.4
+    Height=4.*25.4
+    Depth=.25*25.4
     Color=(.75,.75,.75)
-    __OutletPoly__=[(-.375,0),(.375,0),(.625,.5625),(.375,1.125),(-.375,1.125),\
-                  (-.625,.5625),(-.375,0)]
-    __LowerOffset__=.67
-    __UpperOffset__=2.08
+    __OutletPoly__=[(-.375*25.4,0),(.375*25.4,0),(.625*25.4,.5625*25.4),\
+                    (.375*25.4,1.125*25.4),(-.375*25.4,1.125*25.4),\
+                    (-.625*25.4,.5625*25.4),(-.375*25.4,0)]
+    __LowerOffset__=.67*25.4
+    __UpperOffset__=2.08*25.4
     def __init__(self,name,origin,orientation='H'):
         self.name = name
         if not isinstance(origin,Base.Vector):

@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230628.1438>
+#  Last Modified : <230629.1538>
 #
 #  Description	
 #
@@ -58,6 +58,7 @@ import datetime
 
 from COBLEDStrip import *
 from Electrical import *
+from CircuitBoards import *
 
 class Material(object):
     __instances__ = list()
@@ -170,18 +171,18 @@ class GenerateDrawings(object):
 
 
 class ProductDisplay(GenerateDrawings):
-    _OuterWidth  = 3*12
-    _OuterHeight = 3*12
-    _BackODepth  = 7
-    _LidODepth   = 2
-    _PlyThick    = 3.0/8.0
-    _BoardThick  = 3.0/4.0
+    _OuterWidth  = 3*12*25.4
+    _OuterHeight = 3*12*25.4
+    _BackODepth  = 7*25.4
+    _LidODepth   = 2*25.4
+    _PlyThick    = (3.0/8.0)*25.4
+    _BoardThick  = (3.0/4.0)*25.4
     _woodColor   = (210/255.0,180/255.0,140/255.0)
-    _pegthick    = 1.0/8.0
-    _pegholedia  = 3.0/16.0
-    _pegholespace = 1
+    _pegthick    = (1.0/8.0)*25.4
+    _pegholedia  = (3.0/16.0)*25.4
+    _pegholespace = 1*25.4
     _pegboardColor = (139/255.0,35/255.0,35/255.0)
-    _backbraceSize = 12
+    _backbraceSize = 12*25.4
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -192,8 +193,8 @@ class ProductDisplay(GenerateDrawings):
         self.back   = Part.makePlane(self._OuterWidth,self._OuterHeight,\
                                      origin,YNorm).extrude(BackExtrude)
         Material.AddMaterial("plywood","thick=3/8",\
-                             "width=%f"%self._OuterWidth,\
-                             "length=%f"%self._OuterHeight)
+                             "width=%f"%(self._OuterWidth/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         #
         XNormL = Base.Vector(-1,0,0)
         XNormR = Base.Vector(1,0,0)
@@ -203,24 +204,24 @@ class ProductDisplay(GenerateDrawings):
                                    self._BackODepth-self._PlyThick,\
                                    origin.add(Base.Vector(self._BoardThick,self._BackODepth,self._OuterHeight)),XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BackODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterHeight))
+                             "width=%f"%((self._BackODepth-self._PlyThick)/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         self.leftPegB = Part.makePlane(self._OuterHeight-(2*self._BoardThick),\
-                                       1,
+                                       1*25.4,
                                        origin.add(Base.Vector(self._BoardThick*2,self._PlyThick+1,self._OuterHeight-self._BoardThick)),XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4","width=1",\
-                             "length=%f"%(self._OuterHeight-(2*self._BoardThick)))
+                             "length=%f"%((self._OuterHeight-(2*self._BoardThick))/25.4))
         self.right = Part.makePlane(self._OuterHeight,\
                                     self._BackODepth-self._PlyThick,\
                                     origin.add(Base.Vector(self._OuterWidth-self._BoardThick,self._BackODepth,0)),XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BackODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterHeight))
+                             "width=%f"%((self._BackODepth-self._PlyThick)/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         self.rightPegB = Part.makePlane(self._OuterHeight-(2*self._BoardThick),\
-                                    1,\
+                                    1*25.4,\
                                     origin.add(Base.Vector(self._OuterWidth-(self._BoardThick*2),self._PlyThick+1,self._BoardThick)),XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4","width=1",\
-                             "length=%f"%(self._OuterHeight-(2*self._BoardThick)))
+                             "length=%f"%((self._OuterHeight-(2*self._BoardThick))/25.4))
         #
         ZNormB = Base.Vector(0,0,1)
         ZNormT = Base.Vector(0,0,-1)
@@ -230,72 +231,72 @@ class ProductDisplay(GenerateDrawings):
                                      self._BackODepth-self._PlyThick,\
                                      origin.add(Base.Vector(self._BoardThick,self._PlyThick,0)),ZNormB).extrude(BottomExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BackODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._BackODepth-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         self.bottomPegB = Part.makePlane(self._OuterWidth-(4*self._BoardThick),\
-                                     1,\
+                                     1*25.4,\
                                      origin.add(Base.Vector(self._BoardThick*2,self._PlyThick,self._BoardThick)),ZNormB).extrude(BottomExtrude)
         Material.AddMaterial("pine","thick=3/4","width=1",\
-                             "length=%f"%(self._OuterWidth-(4*self._BoardThick)))
+                             "length=%f"%((self._OuterWidth-(4*self._BoardThick))/25.4))
         self.top = Part.makePlane(self._OuterWidth-(2*self._BoardThick),\
                                      self._BackODepth-self._PlyThick,\
                                      origin.add(Base.Vector(self._BoardThick,self._PlyThick,self._OuterHeight)),ZNormB).extrude(TopExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BackODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._BackODepth-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         self.topPegB = Part.makePlane(self._OuterWidth-(4*self._BoardThick),\
-                                     1,\
+                                     1*25.4,\
                                      origin.add(Base.Vector(self._BoardThick*2,self._PlyThick,self._OuterHeight-self._BoardThick)),ZNormB).extrude(TopExtrude)
         Material.AddMaterial("pine","thick=3/4","width=1",\
-                             "length=%f"%(self._OuterWidth-(4*self._BoardThick)))
+                             "length=%f"%((self._OuterWidth-(4*self._BoardThick))/25.4))
         self.pegboard = self.__pegboard(self._OuterWidth-(2*self._BoardThick),\
                                         self._OuterHeight-(2*self._BoardThick),\
                                         origin.add(Base.Vector(self._BoardThick,1+self._PlyThick,self._BoardThick)))
         Material.AddMaterial("pegboard","thick=1/8",\
-                             "width=%f"%(self._OuterWidth-(2*self._BoardThick)),\
+                             "width=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4),\
                              "length=%f"%(self._OuterHeight-(2*self._BoardThick)))
         self.lid = Part.makePlane(self._OuterWidth,self._OuterHeight,\
                                   origin.add(Base.Vector(0, \
                                                          self._BackODepth+self._LidODepth-self._PlyThick,0)),YNorm).extrude(BackExtrude)
         Material.AddMaterial("plywood","thick=3/8",\
-                             "width=%f"%self._OuterWidth,\
-                             "length=%f"%self._OuterHeight)
+                             "width=%f"%(self._OuterWidth/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         self.left_lid = Part.makePlane(self._OuterHeight,\
                                        self._LidODepth-self._PlyThick,\
                                        origin.add(Base.Vector(self._BoardThick, \
                                                               self._BackODepth+self._LidODepth-self._PlyThick,self._OuterHeight)),\
                                        XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._LidODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterHeight))
+                             "width=%f"%((self._LidODepth-self._PlyThick)/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         self.right_lid = Part.makePlane(self._OuterHeight,\
                                     self._LidODepth-self._PlyThick,\
                                     origin.add(Base.Vector(self._OuterWidth-self._BoardThick,\
                                     self._BackODepth+self._LidODepth-self._PlyThick,0)),XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._LidODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterHeight))
+                             "width=%f"%((self._LidODepth-self._PlyThick)/25.4),\
+                             "length=%f"%(self._OuterHeight/25.4))
         self.bottom_lid = Part.makePlane(self._OuterWidth-(2*self._BoardThick),\
                                      self._LidODepth-self._PlyThick,\
                                      origin.add(Base.Vector(self._BoardThick,\
                                      self._BackODepth,0)),ZNormB).extrude(BottomExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._LidODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._LidODepth-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         self.top_lid = Part.makePlane(self._OuterWidth-(2*self._BoardThick),\
                                      self._LidODepth-self._PlyThick,\
                                      origin.add(Base.Vector(self._BoardThick,\
                                      self._BackODepth,self._OuterHeight)),ZNormB).extrude(TopExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._LidODepth-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._LidODepth-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         polypoints = list()
         pstring = "polygon=["
         BackBraceExtrude = Base.Vector(0,-self._PlyThick,0)
         for tup in [(0,0),(self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
             x,z = tup
             polypoints.append(origin.add(Base.Vector(x+self._PlyThick,0,z)))
-            pstring = pstring + "(%f,%f)"%(x,z)
+            pstring = pstring + "(%f,%f)"%(x/25.4,z/25.4)
         pstring = pstring + "]"
         self.braceL = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                         .extrude(BackBraceExtrude)
@@ -313,21 +314,21 @@ class ProductDisplay(GenerateDrawings):
                                    self._BackODepth-(1.8/25.4),\
                                    self._BoardThick)),'VL')
         Material.AddMaterial("COBLEDStrip",\
-                             "length=%d"%(self.leftlight.Length))
+                             "length=%d"%(self.leftlight.Length/25.4))
         self.rightlight = COBLEDStripYard(name+"_rightledstrip",\
                     origin.add(Base.Vector(self._OuterWidth-self._BoardThick,\
-                               self._BackODepth-(1.8/25.4),\
+                               self._BackODepth-8,\
                                self._OuterHeight-self._BoardThick)),\
                                'VR')
         Material.AddMaterial("COBLEDStrip",\
-                             "length=%d"%(self.leftlight.Length))
+                             "length=%d"%(self.leftlight.Length/25.4))
         self.toplight = COBLEDStripYard(name+"_topledstrip",\
                     origin.add(Base.Vector(self._OuterWidth-self._BoardThick,\
-                               self._BackODepth-(1.8/25.4),\
+                               self._BackODepth-8,\
                                self._OuterHeight-self._BoardThick)),\
                                'H')
         Material.AddMaterial("COBLEDStrip",\
-                             "length=%d"%(self.leftlight.Length))
+                             "length=%d"%(self.leftlight.Length/25.4))
     def __pegboard(self,width,height,o=Base.Vector(0,0,0)):
         pextrude=Base.Vector(0,self._pegthick,0)
         n = Base.Vector(0,1,0)
@@ -534,21 +535,24 @@ class ProductDisplay(GenerateDrawings):
         caseBackNoPegboard = self.__caseBackNoPegboard__(doc)
         tv.Source = caseBackNoPegboard
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewNoPeg')
         sheet1.addView(rv)
         rv.Source = caseBackNoPegboard
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewNoPeg')
         sheet1.addView(bv)
         bv.Source = caseBackNoPegboard
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
         doc.recompute()
@@ -559,21 +563,24 @@ class ProductDisplay(GenerateDrawings):
         sheet2.addView(tv)
         tv.Source = caseBack 
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightView')
         sheet2.addView(rv)
         rv.Source = caseBack
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomView')
         sheet2.addView(bv)
         bv.Source = caseBack
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
         doc.recompute()
@@ -584,34 +591,37 @@ class ProductDisplay(GenerateDrawings):
         lid = self.__lid__(doc)
         tv.Source = lid
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewLid')
         sheet3.addView(rv)
         rv.Source = lid
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewLid')
         sheet3.addView(bv)
         bv.Source = lid
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet3,"ProductDisplayCaseP3.pdf")
 
 class YardDemo(GenerateDrawings):
-    _OuterWidth  = 12
-    _OuterLength = 3*12
-    _BaseHeight  = 6.25
-    _LexanHeight = 2
-    _PlyThick    = 1.0/4.0
-    _LexanThick  = 1.0/8.0
-    _BoardThick  = 3.0/4.0
+    _OuterWidth  = 12*25.4
+    _OuterLength = 3*12*25.4
+    _BaseHeight  = 6.25*25.4
+    _LexanHeight = 2*25.4
+    _PlyThick    = (1.0/4.0)*25.4
+    _LexanThick  = (1.0/8.0)*25.4
+    _BoardThick  = (3.0/4.0)*25.4
     _woodColor   = (210/255.0,180/255.0,140/255.0)
     _lexColor    = (1.0,1.0,1.0)
     _roadbedPoly = [
@@ -626,8 +636,8 @@ class YardDemo(GenerateDrawings):
         (0.000000,8)\
     ]
     _roadbedColor = (.5,.5,.5)
-    _roadbedThick = 1.0/8.0
-    _masoniteThick = 1.0/8.0
+    _roadbedThick = (1.0/8.0)*25.4
+    _masoniteThick = (1.0/8.0)*25.4
     _masoniteColor = (139/255.0,35/255.0,35/255.0)
     def __init__(self,name,origin):
         self.name = name
@@ -641,8 +651,8 @@ class YardDemo(GenerateDrawings):
                                                                 self._BaseHeight-self._PlyThick)),\
                                          ZNorm).extrude(PlyExtrude)
         Material.AddMaterial("birch plywood","thick=1/4",
-                             "width=%f"%self._OuterWidth,\
-                             "length=%f"%self._OuterLength)
+                             "width=%f"%(self._OuterWidth/25.4),\
+                             "length=%f"%(self._OuterLength/25.4))
         YNormF = Base.Vector(0,1,0)
         YNormB = Base.Vector(0,-1,0)
         FrontExtrude = Base.Vector(0,self._BoardThick,0)
@@ -651,16 +661,16 @@ class YardDemo(GenerateDrawings):
                                     self._OuterLength,\
                                     origin,YNormF).extrude(FrontExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight-self._PlyThick),\
-                             "length=%f"%self._OuterLength)
+                             "width=%f"%((self._BaseHeight-self._PlyThick)/25.4),\
+                             "length=%f"%(self._OuterLength/25.4))
         self.back = Part.makePlane(self._BaseHeight-self._PlyThick,\
                                     self._OuterLength,\
                                     origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight-self._PlyThick)),\
                                     YNormB).extrude(BackExtrude)
         x = self._BaseHeight-self._PlyThick
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(x),\
-                             "length=%f"%self._OuterLength)
+                             "width=%f"%(x/25.4),\
+                             "length=%f"%(self._OuterLength/25.4))
         XNormL = Base.Vector(-1,0,0)
         XNormR = Base.Vector(1,0,0)
         LeftExtrude = Base.Vector(-self._BoardThick,0,0)
@@ -670,15 +680,15 @@ class YardDemo(GenerateDrawings):
                                    origin.add(Base.Vector(self._BoardThick,self._OuterWidth-self._BoardThick,self._BaseHeight-self._PlyThick)),\
                                    XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._BaseHeight-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         self.right = Part.makePlane(self._BaseHeight-self._PlyThick,\
                                    self._OuterWidth-(2*self._BoardThick),\
                                    origin.add(Base.Vector(self._OuterLength,self._OuterWidth-self._BoardThick,self._BaseHeight-self._PlyThick)),\
                                    XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight-self._PlyThick),\
-                             "length=%f"%(self._OuterWidth-(2*self._BoardThick)))
+                             "width=%f"%((self._BaseHeight-self._PlyThick)/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4))
         LexFrontExtrude = Base.Vector(0,self._LexanThick,0)
         LexBackExtrude = Base.Vector(0,-self._LexanThick,0)
         self.lexfront = Part.makePlane(self._LexanHeight,\
@@ -687,16 +697,16 @@ class YardDemo(GenerateDrawings):
                                        self._BaseHeight)),\
                                        YNormF).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%self._LexanHeight,\
-                             "length=%f"%self._OuterLength)
+                             "width=%f"%(self._LexanHeight/25.4),\
+                             "length=%f"%(self._OuterLength/25))
         self.lexback = Part.makePlane(self._LexanHeight,\
                                        self._OuterLength,\
                                        origin.add(Base.Vector(0,self._OuterWidth-self._LexanThick,\
                                        self._BaseHeight+self._LexanHeight)),\
                                        YNormB).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%self._LexanHeight,\
-                             "length=%f"%self._OuterLength)
+                             "width=%f"%(self._LexanHeight/25.4),\
+                             "length=%f"%(self._OuterLength/25.4))
         LexLeftExtrude = Base.Vector(-self._LexanThick,0,0)
         LexRightExtrude = Base.Vector(self._LexanThick,0,0)
         self.lexleft = Part.makePlane(self._LexanHeight,\
@@ -704,21 +714,21 @@ class YardDemo(GenerateDrawings):
                                    origin.add(Base.Vector(self._LexanThick,self._OuterWidth-self._LexanThick,self._BaseHeight+self._LexanHeight)),\
                                    XNormL).extrude(LexLeftExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%(self._LexanHeight),\
-                             "length=%f"%(self._OuterWidth-(2*self._LexanThick)))
+                             "width=%f"%(self._LexanHeight/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._LexanThick))/25.4))
         self.lexright = Part.makePlane(self._LexanHeight,\
                                    self._OuterWidth-(2*self._LexanThick),\
                                    origin.add(Base.Vector(self._OuterLength,self._OuterWidth-self._LexanThick,self._BaseHeight+self._LexanHeight)),\
                                    XNormL).extrude(LexLeftExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%(self._LexanHeight),\
-                             "length=%f"%(self._OuterWidth-(2*self._LexanThick)))
+                             "width=%f"%(self._LexanHeight/25.4),\
+                             "length=%f"%((self._OuterWidth-(2*self._LexanThick))/25.4))
         polypoints = list()
         pstring = "polygon=["
         RoadbedExtrude = Base.Vector(0,0,self._roadbedThick)
         for tup in self._roadbedPoly:
             x,y = tup
-            polypoints.append(origin.add(Base.Vector(x,y,self._BaseHeight)))
+            polypoints.append(origin.add(Base.Vector(x*25.4,y*25.4,self._BaseHeight)))
             pstring = pstring + "(%f,%f)"%(x,y-1.375)
         pstring = pstring + "]"
         self.roadbed = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
@@ -737,29 +747,29 @@ class YardDemo(GenerateDrawings):
                                          origin.add(Base.Vector(-self._BoardThick,-self._BoardThick,0)),\
                                          YNormF).extrude(FrontExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
-                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
         self.backCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
                                         self._OuterLength+(2*self._BoardThick),\
                                         origin.add(Base.Vector(-self._BoardThick,self._OuterWidth+self._BoardThick,self._BaseHeight+self._LexanHeight)),\
                                         YNormB).extrude(BackExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
-                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
         self.leftCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
                                         self._OuterWidth,\
                                         origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
                                         XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
-                             "length=%f"%(self._OuterWidth))
+                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "length=%f"%(self._OuterWidth/25.4))
         self.rightCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
                                    self._OuterWidth,\
                                    origin.add(Base.Vector(self._OuterLength+self._BoardThick,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
                                    XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._BaseHeight+self._LexanHeight),\
-                             "length=%f"%(self._OuterWidth))
+                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "length=%f"%(self._OuterWidth/25.4))
         MasoniteExtrude = Base.Vector(0,0,self._masoniteThick)
         self.topCover = Part.makePlane(self._OuterLength+(2*self._BoardThick),\
                                        self._OuterWidth+(2*self._BoardThick),\
@@ -768,8 +778,8 @@ class YardDemo(GenerateDrawings):
                                                               self._BaseHeight+self._LexanHeight)),\
                                        ZNorm).extrude(MasoniteExtrude)
         Material.AddMaterial("masonite","thick=1/8",\
-                             "width=%f"%(self._OuterWidth+(2*self._BoardThick)),\
-                             "length=%f"%(self._OuterLength+(2*self._BoardThick)))
+                             "width=%f"%((self._OuterWidth+(2*self._BoardThick))/25.4),\
+                             "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
     _cornerPolys = {\
         'A': [(0.125,11.875),(1.125,11.875),(1.125,11.75),(.25,11.75),\
               (.25,10.875),(.125,10.875),(.125,11.875)],\
@@ -786,8 +796,8 @@ class YardDemo(GenerateDrawings):
         CornerExtrude = Base.Vector(0,0,self._LexanHeight)
         for tup in self._cornerPolys[which]:
             x,y = tup
-            polypoints.append(self.origin.add(Base.Vector(x,y,self._BaseHeight)))
-        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._LexanHeight))
+            polypoints.append(self.origin.add(Base.Vector(x*25.4,y*25.4,self._BaseHeight)))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._LexanHeight/25.4))
         return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                 .extrude(CornerExtrude)
     _lexmountPoly = {\
@@ -796,14 +806,14 @@ class YardDemo(GenerateDrawings):
         'B': [(10.875,0),(11.875,0),(11.875,1),(11.75,1),(11.75,.125),\
               (10.875,.125),(10.875,0)]\
     }
-    _mountLength = 6
+    _mountLength = 6*25.4
     def __lexmount__(self,side,o):
         polypoints = list()
         MountExtrude = Base.Vector(self._mountLength,0,0)
         for tup in self._lexmountPoly[side]:
             y,z = tup
-            polypoints.append(o.add(Base.Vector(0,y,z)))
-        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._mountLength))
+            polypoints.append(o.add(Base.Vector(0,y*25.4,z*25.4)))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._mountLength/25.4))
         return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                 .extrude(MountExtrude)
     def show(self,doc=None):
@@ -1072,21 +1082,24 @@ class YardDemo(GenerateDrawings):
         sheet1.addView(tv)
         tv.Source = base
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewBase')
         sheet1.addView(rv)
         rv.Source = base
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewBase')
         sheet1.addView(bv)
         bv.Source = base
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
         doc.recompute()
@@ -1097,21 +1110,24 @@ class YardDemo(GenerateDrawings):
         sheet2.addView(tv)
         tv.Source = cover
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewCover')
         sheet2.addView(rv)
         rv.Source = cover
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewCover')
         sheet2.addView(bv)
         bv.Source = cover
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
         doc.recompute()
@@ -1128,22 +1144,22 @@ class MultiDemo(GenerateDrawings):
     #             9.66666+9.66666+9.66666+7 = 36
     # Left half:  Pricom, neopixel, 8 Ball Club, stall motor turnout
     #             9+9+8+9.83333
-    _OuterWidthFolded = 36
-    _OuterWidthUnfolded = 72
-    _OuterHeightFolded = 24
-    _OuterHeightUnfolded = 12
-    _OuterDepthBase = (3.0/8.0)+6+(1.0/8.0)
-    _OuterDepthLid  = (3.0/8.0)+1
-    _InnerDepthBase = 6
-    _InnerDepthLid  = 1
-    _PlyThick    = 3.0/8.0
-    _BirchPlyThick = 1.0/4.0
-    _ShelfHeight = 7
-    _LexanThick  = 1.0/8.0
-    _BoardThick  = 3.0/4.0
+    _OuterWidthFolded = 36*25.4
+    _OuterWidthUnfolded = 72*25.4
+    _OuterHeightFolded = 24*25.4
+    _OuterHeightUnfolded = 12*25.4
+    _OuterDepthBase = ((3.0/8.0)+6+(1.0/8.0))*25.4
+    _OuterDepthLid  = ((3.0/8.0)+1)*25.4
+    _InnerDepthBase = 6*25.4
+    _InnerDepthLid  = 1*25.4
+    _PlyThick    = (3.0/8.0)*25.4
+    _BirchPlyThick = (1.0/4.0)*25.4
+    _ShelfHeight = 7.5*25.4
+    _LexanThick  = (1.0/8.0)*25.4
+    _BoardThick  = (3.0/4.0)*25.4
     _woodColor   = (210/255.0,180/255.0,140/255.0)
     _lexColor    = (1.0,1.0,1.0)
-    _backbraceSize = 12
+    _backbraceSize = 12*25.4
     def __init__(self,name,origin):
         self.name = name
         if not isinstance(origin,Base.Vector):
@@ -1160,11 +1176,11 @@ class MultiDemo(GenerateDrawings):
                                             self._OuterHeightUnfolded)),\
                                      YNorm).extrude(BackExtrude)
         Material.AddMaterial("plywood","thick=3/8",\
-                             "width=%f"%(self._OuterWidthFolded),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._OuterWidthFolded/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
         Material.AddMaterial("plywood","thick=3/8",\
-                             "width=%f"%(self._OuterWidthFolded),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._OuterWidthFolded/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
                 #
         XNormL = Base.Vector(-1,0,0)
         XNormR = Base.Vector(1,0,0)
@@ -1177,28 +1193,28 @@ class MultiDemo(GenerateDrawings):
                                                            self._OuterHeightUnfolded)),\
                                     XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
         self.leftL = Part.makePlane(self._OuterHeightUnfolded,\
                                     self._InnerDepthBase,\
                                     origin.add(Base.Vector(self._BoardThick,\
                                                            0,\
                                                            2*self._OuterHeightUnfolded)),XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
         self.rightR = Part.makePlane(self._OuterHeightUnfolded,\
                                     self._InnerDepthBase,\
                                     origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,0,0)),XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
         self.rightL = Part.makePlane(self._OuterHeightUnfolded,\
                                     self._InnerDepthBase,\
                                     origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,0,self._OuterHeightUnfolded)),XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterHeightUnfolded))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%(self._OuterHeightUnfolded/25.4))
         #
         ZNormB = Base.Vector(0,0,1)
         ZNormT = Base.Vector(0,0,-1) 
@@ -1208,33 +1224,33 @@ class MultiDemo(GenerateDrawings):
                                      self._InnerDepthBase,\
                                      origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),0)),ZNormB).extrude(BottomExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         self.top = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
                                      self._InnerDepthBase,\
                                      origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._OuterHeightFolded)),ZNormB).extrude(TopExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthBase),\
-                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                             "width=%f"%(self._InnerDepthBase/25.4),\
+                             "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         ShelfRExtrude = Base.Vector(0,0,self._BirchPlyThick)
         ShelfLExtrude = Base.Vector(0,0,-self._BirchPlyThick)
         self.shelfR = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
                                      self._InnerDepthBase,\
                                      origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._ShelfHeight)),ZNormB).extrude(ShelfRExtrude)
         Material.AddMaterial("birch plywood","thick=1/4",\
-                "width=%f"%(self._InnerDepthBase),\
-                "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                "width=%f"%(self._InnerDepthBase/25.4),\
+                "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         self.shelfL = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
                                      self._InnerDepthBase,\
                                      origin.add(Base.Vector(self._BoardThick,-(self._InnerDepthBase),self._OuterHeightFolded-self._ShelfHeight)),ZNormB).extrude(ShelfLExtrude)
         Material.AddMaterial("birch plywood","thick=1/4",\
-                "width=%f"%(self._InnerDepthBase),\
-                "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                "width=%f"%(self._InnerDepthBase/25.4),\
+                "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         self.shelfRBraces = list()
         self.shelfLBraces = list()
-        for x in [self._BoardThick+1,self._OuterWidthFolded/4,\
+        for x in [self._BoardThick+1*25.4,self._OuterWidthFolded/4,\
                   self._OuterWidthFolded/2,3*(self._OuterWidthFolded/4),\
-                  self._OuterWidthFolded-(2*self._BoardThick)-1]:
+                  self._OuterWidthFolded-(2*self._BoardThick)-1*25.4]:
             self.shelfRBraces.append(self.__shelfBrace__(x,self._ShelfHeight,'R'))
             self.shelfLBraces.append(self.__shelfBrace__(x,self._OuterHeightFolded-self._ShelfHeight,'L'))
         LexFrontExtrude = Base.Vector(0,self._LexanThick,0)
@@ -1244,8 +1260,8 @@ class MultiDemo(GenerateDrawings):
                                         -(self._InnerDepthBase+self._LexanThick),\
                                         0)),YNorm).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%(self._OuterHeightUnfolded),\
-                             "length=%f"%(self._OuterWidthFolded))
+                             "width=%f"%(self._OuterHeightUnfolded/25.4),\
+                             "length=%f"%(self._OuterWidthFolded/25.4))
         self.lexFrontL = Part.makePlane(self._OuterHeightUnfolded,\
                                      self._OuterWidthFolded,\
                                      origin.add(Base.Vector(0,\
@@ -1253,18 +1269,18 @@ class MultiDemo(GenerateDrawings):
                                             self._OuterHeightUnfolded)),\
                                      YNorm).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
-                             "width=%f"%(self._OuterHeightUnfolded),\
-                             "length=%f"%(self._OuterWidthFolded))
+                             "width=%f"%(self._OuterHeightUnfolded/25.4),\
+                             "length=%f"%(self._OuterWidthFolded/25.4))
         self.lexAngles = list()
         self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._ShelfHeight/2,'L'))
-        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'L'))
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.25,'L'))
         self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'L'))
-        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'L'))
+        self.lexAngles.append(self.__lexAngle__(self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.25),'L'))
 
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight/2,'R'))
-        #self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.5,'R'))
+        #self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._ShelfHeight*1.25,'R'))
         self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight/2),'R'))
-        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.5),'R'))
+        self.lexAngles.append(self.__lexAngle__(self._OuterWidthFolded-self._BoardThick,-self._InnerDepthBase,self._OuterHeightFolded-(self._ShelfHeight*1.25),'R'))
         
         self.lidLeft = Part.makePlane(self._OuterHeightFolded,\
                                       self._InnerDepthLid,\
@@ -1273,8 +1289,8 @@ class MultiDemo(GenerateDrawings):
                                                              self._OuterHeightFolded)),\
                                       XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthLid),\
-                             "length=%f"%(self._OuterHeightFolded))
+                             "width=%f"%(self._InnerDepthLid/25.4),\
+                             "length=%f"%(self._OuterHeightFolded/25.4))
         self.lidRight = Part.makePlane(self._OuterHeightFolded,\
                                        self._InnerDepthLid,\
                                        origin.add(Base.Vector(self._OuterWidthFolded-self._BoardThick,\
@@ -1282,8 +1298,8 @@ class MultiDemo(GenerateDrawings):
                                                              0)),\
                                        XNormR).extrude(RightExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthLid),\
-                             "length=%f"%(self._OuterHeightFolded))
+                             "width=%f"%(self._InnerDepthLid/25.4),\
+                             "length=%f"%(self._OuterHeightFolded/25.4))
         self.lidBottom = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
                                      self._InnerDepthLid,\
                                      origin.add(Base.Vector(self._BoardThick,\
@@ -1291,8 +1307,8 @@ class MultiDemo(GenerateDrawings):
                                                   0)),\
                                      ZNormB).extrude(BottomExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthLid),\
-                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                             "width=%f"%(self._InnerDepthLid/25.4),\
+                             "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         self.lidTop = Part.makePlane(self._OuterWidthFolded-(2*self._BoardThick),\
                                      self._InnerDepthLid,\
                                      origin.add(Base.Vector(self._BoardThick,\
@@ -1300,8 +1316,8 @@ class MultiDemo(GenerateDrawings):
                                                self._OuterHeightFolded)),\
                                      ZNormB).extrude(TopExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%(self._InnerDepthLid),\
-                             "length=%f"%(self._OuterWidthFolded-(2*self._BoardThick)))
+                             "width=%f"%(self._InnerDepthLid/25.4),\
+                             "length=%f"%((self._OuterWidthFolded-(2*self._BoardThick))/25.4))
         
         self.lid = Part.makePlane(self._OuterHeightFolded,\
                                   self._OuterWidthFolded,\
@@ -1310,15 +1326,15 @@ class MultiDemo(GenerateDrawings):
                                         0)),\
                                   YNorm).extrude(BackExtrude)
         Material.AddMaterial("plywood","thick=3/8",\
-                             "width=%f"%(self._OuterWidthFolded),\
-                             "length=%f"%(self._OuterHeightFolded))
+                             "width=%f"%(self._OuterWidthFolded/25.4),\
+                             "length=%f"%(self._OuterHeightFolded/25.4))
         polypoints = list()
         pstring = "polygon=["
         BackBraceExtrude = Base.Vector(0,self._PlyThick,0)
         for tup in [(0,0),(self._backbraceSize,0),(0,self._backbraceSize),(0,0)]:
             x,z = tup
             polypoints.append(origin.add(Base.Vector(x+self._PlyThick,self._PlyThick,z)))
-            pstring = pstring + "(%f,%f)"%(x,z)
+            pstring = pstring + "(%f,%f)"%(x/25.4,z/25.4)
         pstring = pstring + "]"
         self.braceRL = Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                         .extrude(BackBraceExtrude)
@@ -1363,18 +1379,34 @@ class MultiDemo(GenerateDrawings):
                                     box.origin.add(Base.Vector(0,-SingleGangUtilityOutletCover.Depth,0)))
             Material.AddMaterial("utility box cover","type=duplex")
             self.electricboxes.append((box,cover))
+            self.dogbert = BeagleBoneBlack(self.name+"_dogbert",\
+                       origin.add(Base.Vector(self._OuterWidthFolded-5*25.4,\
+                                              -(.25*25.4+self._PlyThick),\
+                                              3.25*25.4)))
+            self.scoil = MultiFunctionUT(self.name+"_singleCoil",
+                        origin.add(Base.Vector(self._OuterWidthFolded-14*25.4,\
+                                               -(.25*25.4+self._PlyThick),\
+                                               3*25.4)))
+            self.tcoil = MultiFunctionUT(self.name+"_twinCoil",
+                        origin.add(Base.Vector(self._OuterWidthFolded-23*25.4,\
+                                               -(.25*25.4+self._PlyThick),\
+                                               3*25.4)))
+            self.servo = MultiFunctionUT(self.name+"_servo",
+                        origin.add(Base.Vector(self._OuterWidthFolded-32*25.4,\
+                                               -(.25*25.4+self._PlyThick),\
+                                               3*25.4)))
     _lexAnglePolys8ths = {\
         'R': [(8,0), (0,0), (0,-8), (1,-8), (1,-1), (8,-1), (8,0)],\
         'L': [(0,0), (0,8), (1,8),  (1,1),  (8,1),  (8,0),  (0,0)] \
     }
-    _lexAngleLength = 1
+    _lexAngleLength = 1*25.4
     def __lexAngle__(self,xoff,yoff,zoff,which):
         polypoints = list()
         LexAngleExtrude = Base.Vector(0,0,self._lexAngleLength)
         for tup in self._lexAnglePolys8ths[which]:
             y,x = tup
-            polypoints.append(self.origin.add(Base.Vector(xoff+(x/8.0),\
-                                                          yoff+(y/8.0),\
+            polypoints.append(self.origin.add(Base.Vector(xoff+(x/8.0)*25.4,\
+                                                          yoff+(y/8.0)*25.4,\
                                                           zoff)))
         Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._lexAngleLength))
         return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
@@ -1391,7 +1423,7 @@ class MultiDemo(GenerateDrawings):
             y,z = tup
             pstring = pstring + "(%f,%f)"%(abs(y),z)
             z = z*sign
-            polypoints.append(self.origin.add(Base.Vector(xoff,y,z+zoff)))
+            polypoints.append(self.origin.add(Base.Vector(xoff,y*25.4,z*25.4+zoff)))
         pstring = pstring + "]"
         Material.AddMaterial("pine","thick=3/4",pstring)
         return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
@@ -1518,6 +1550,10 @@ class MultiDemo(GenerateDrawings):
             box,cover = tup
             box.show(doc)
             cover.show(doc)
+        self.dogbert.show(doc)
+        self.scoil.show(doc)
+        self.tcoil.show(doc)
+        self.servo.show(doc)
     def __base__(self,doc):
         black = (0.0,0.0,0.0)
         result = list()
@@ -1654,21 +1690,24 @@ class MultiDemo(GenerateDrawings):
         sheet1.addView(tv)
         tv.Source = base
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewBase')
         sheet1.addView(rv)
         rv.Source = base
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewBase')
         sheet1.addView(bv)
         bv.Source = base
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
         doc.recompute()
@@ -1679,21 +1718,24 @@ class MultiDemo(GenerateDrawings):
         sheet2.addView(tv)
         tv.Source = lexan
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewLexan')
         sheet2.addView(rv)
         rv.Source = lexan
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewLexan')
         sheet2.addView(bv)
         bv.Source = lexan
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
         doc.recompute()
@@ -1704,21 +1746,24 @@ class MultiDemo(GenerateDrawings):
         sheet3.addView(tv)
         tv.Source = cover
         tv.Direction=(0.0,1.0,0.0)
-        tv.Scale = 1.0
+        tv.ScaleType = "Custom"
+        tv.Scale = 1.0/25.4
         tv.X = 60
         tv.Y = 160
         rv = doc.addObject('TechDraw::DrawViewPart','RightViewCover')
         sheet3.addView(rv)
         rv.Source = cover
         rv.Direction=(1.0,0.0,0.0)
-        rv.Scale = 1.0
+        rv.ScaleType = "Custom"
+        rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
         bv = doc.addObject('TechDraw::DrawViewPart','BottomViewCover')
         sheet3.addView(bv)
         bv.Source = cover
         bv.Direction=(0.0,0.0,1.0)
-        bv.Scale = 1.0
+        bv.ScaleType = "Custom"
+        bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
         doc.recompute()
