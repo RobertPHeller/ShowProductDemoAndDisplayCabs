@@ -1,4 +1,4 @@
-#!/usr/bin/freecad
+#!/usr/local/bin/FreeCAD021
 #*****************************************************************************
 #
 #  System        : 
@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230629.1538>
+#  Last Modified : <230720.1704>
 #
 #  Description	
 #
@@ -530,7 +530,7 @@ class ProductDisplay(GenerateDrawings):
     def generateDrawings(self,doc):
         self.createTemplate(doc,"Product Display Case",3)
         sheet1 = self.createSheet(doc,"Case Back (no pegboard)")
-        tv = doc.addObject('TechDraw::DrawViewPart','TopViewNoPeg')
+        tv = doc.addObject('TechDraw::DrawViewPart','FrontViewNoPeg')
         sheet1.addView(tv)
         caseBackNoPegboard = self.__caseBackNoPegboard__(doc)
         tv.Source = caseBackNoPegboard
@@ -547,7 +547,7 @@ class ProductDisplay(GenerateDrawings):
         rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
-        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewNoPeg')
+        bv = doc.addObject('TechDraw::DrawViewPart','TopViewNoPeg')
         sheet1.addView(bv)
         bv.Source = caseBackNoPegboard
         bv.Direction=(0.0,0.0,1.0)
@@ -558,7 +558,7 @@ class ProductDisplay(GenerateDrawings):
         doc.recompute()
         TechDrawGui.exportPageAsPdf(sheet1,"ProductDisplayCaseP1.pdf")
         sheet2 = self.createSheet(doc,"Case Back (with pegboard)")
-        tv = doc.addObject('TechDraw::DrawViewPart','TopViewPeg')
+        tv = doc.addObject('TechDraw::DrawViewPart','FrontViewPeg')
         caseBack = self.__caseBack__(doc)
         sheet2.addView(tv)
         tv.Source = caseBack 
@@ -575,7 +575,7 @@ class ProductDisplay(GenerateDrawings):
         rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
-        bv = doc.addObject('TechDraw::DrawViewPart','BottomView')
+        bv = doc.addObject('TechDraw::DrawViewPart','TopView')
         sheet2.addView(bv)
         bv.Source = caseBack
         bv.Direction=(0.0,0.0,1.0)
@@ -619,6 +619,7 @@ class YardDemo(GenerateDrawings):
     _OuterLength = 3*12*25.4
     _BaseHeight  = 6.25*25.4
     _LexanHeight = 2*25.4
+    _coverHeight = 7*25.4
     _PlyThick    = (1.0/4.0)*25.4
     _LexanThick  = (1.0/8.0)*25.4
     _BoardThick  = (3.0/4.0)*25.4
@@ -698,7 +699,7 @@ class YardDemo(GenerateDrawings):
                                        YNormF).extrude(LexFrontExtrude)
         Material.AddMaterial("lexan","thick=1/8",\
                              "width=%f"%(self._LexanHeight/25.4),\
-                             "length=%f"%(self._OuterLength/25))
+                             "length=%f"%(self._OuterLength/25.4))
         self.lexback = Part.makePlane(self._LexanHeight,\
                                        self._OuterLength,\
                                        origin.add(Base.Vector(0,self._OuterWidth-self._LexanThick,\
@@ -742,33 +743,61 @@ class YardDemo(GenerateDrawings):
         self.lexmountF2 = self.__lexmount__('F',origin.add(Base.Vector(self._OuterLength-(3+self._mountLength),0,self._BaseHeight)))
         self.lexmountB1 = self.__lexmount__('B',origin.add(Base.Vector(3,0,self._BaseHeight)))
         self.lexmountB2 = self.__lexmount__('B',origin.add(Base.Vector(self._OuterLength-(3+self._mountLength),0,self._BaseHeight)))
-        self.frontCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+        self.frontCoverU = Part.makePlane(self._coverHeight,\
+                                         self._OuterLength+(2*self._BoardThick),\
+                                         origin.add(Base.Vector(-self._BoardThick,-self._BoardThick,self._BaseHeight+self._LexanHeight-self._coverHeight)),\
+                                         YNormF).extrude(FrontExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%((self._coverHeight)/25.4),\
+                             "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
+        self.frontCoverL = Part.makePlane(self._BaseHeight+self._LexanHeight-self._coverHeight,\
                                          self._OuterLength+(2*self._BoardThick),\
                                          origin.add(Base.Vector(-self._BoardThick,-self._BoardThick,0)),\
                                          YNormF).extrude(FrontExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "width=%f"%((self._BaseHeight+self._LexanHeight-self._coverHeight)/25.4),\
                              "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
-        self.backCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+        self.backCoverU = Part.makePlane(self._coverHeight,\
                                         self._OuterLength+(2*self._BoardThick),\
                                         origin.add(Base.Vector(-self._BoardThick,self._OuterWidth+self._BoardThick,self._BaseHeight+self._LexanHeight)),\
                                         YNormB).extrude(BackExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "width=%f"%((self._coverHeight)/25.4),\
                              "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
-        self.leftCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+        self.backCoverL = Part.makePlane(self._BaseHeight+self._LexanHeight-self._coverHeight,\
+                                        self._OuterLength+(2*self._BoardThick),\
+                                        origin.add(Base.Vector(-self._BoardThick,self._OuterWidth+self._BoardThick,self._BaseHeight+self._LexanHeight-self._coverHeight)),\
+                                        YNormB).extrude(BackExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%((self._BaseHeight+self._LexanHeight-self._coverHeight)/25.4),\
+                             "length=%f"%((self._OuterLength+(2*self._BoardThick))/25.4))
+        self.leftCoverU = Part.makePlane(self._coverHeight,\
                                         self._OuterWidth,\
                                         origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
                                         XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "width=%f"%((self._coverHeight)/25.4),\
                              "length=%f"%(self._OuterWidth/25.4))
-        self.rightCover = Part.makePlane(self._BaseHeight+self._LexanHeight,\
+        self.leftCoverL = Part.makePlane(self._BaseHeight+self._LexanHeight-self._coverHeight,\
+                                        self._OuterWidth,\
+                                        origin.add(Base.Vector(0,self._OuterWidth,self._BaseHeight+self._LexanHeight-self._coverHeight)),\
+                                        XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%((self._BaseHeight+self._LexanHeight-self._coverHeight)/25.4),\
+                             "length=%f"%(self._OuterWidth/25.4))
+        self.rightCoverU = Part.makePlane(self._coverHeight,\
                                    self._OuterWidth,\
                                    origin.add(Base.Vector(self._OuterLength+self._BoardThick,self._OuterWidth,self._BaseHeight+self._LexanHeight)),\
                                    XNormL).extrude(LeftExtrude)
         Material.AddMaterial("pine","thick=3/4",\
-                             "width=%f"%((self._BaseHeight+self._LexanHeight)/25.4),\
+                             "width=%f"%((self._coverHeight)/25.4),\
+                             "length=%f"%(self._OuterWidth/25.4))
+        self.rightCoverL = Part.makePlane(self._BaseHeight+self._LexanHeight-self._coverHeight,\
+                                   self._OuterWidth,\
+                                   origin.add(Base.Vector(self._OuterLength+self._BoardThick,self._OuterWidth,self._BaseHeight+self._LexanHeight-self._coverHeight)),\
+                                   XNormL).extrude(LeftExtrude)
+        Material.AddMaterial("pine","thick=3/4",\
+                             "width=%f"%((self._BaseHeight+self._LexanHeight-self._coverHeight)/25.4),\
                              "length=%f"%(self._OuterWidth/25.4))
         MasoniteExtrude = Base.Vector(0,0,self._masoniteThick)
         self.topCover = Part.makePlane(self._OuterLength+(2*self._BoardThick),\
@@ -903,24 +932,44 @@ class YardDemo(GenerateDrawings):
         obj.Label = self.name+"_lexmountB2"
         obj.ViewObject.ShapeColor=self._lexColor
         obj.ViewObject.Transparency = 90
-        obj = doc.addObject("Part::Feature",self.name+"_frontCover")
-        obj.Shape = self.frontCover
-        obj.Label = self.name+"_frontCover"
+        obj = doc.addObject("Part::Feature",self.name+"_frontCoverU")
+        obj.Shape = self.frontCoverU
+        obj.Label = self.name+"_frontCoverU"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 30
-        obj = doc.addObject("Part::Feature",self.name+"_backCover")
-        obj.Shape = self.backCover
-        obj.Label = self.name+"_backCover"
+        obj = doc.addObject("Part::Feature",self.name+"_frontCoverL")
+        obj.Shape = self.frontCoverL
+        obj.Label = self.name+"_frontCoverL"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 30
-        obj = doc.addObject("Part::Feature",self.name+"_leftCover")
-        obj.Shape = self.leftCover
-        obj.Label = self.name+"_leftCover"
+        obj = doc.addObject("Part::Feature",self.name+"_backCoverU")
+        obj.Shape = self.backCoverU
+        obj.Label = self.name+"_backCoverU"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 30
-        obj = doc.addObject("Part::Feature",self.name+"_rightCover")
-        obj.Shape = self.rightCover
-        obj.Label = self.name+"_rightCover"
+        obj = doc.addObject("Part::Feature",self.name+"_backCoverL")
+        obj.Shape = self.backCoverL
+        obj.Label = self.name+"_backCoverL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_leftCoverU")
+        obj.Shape = self.leftCoverU
+        obj.Label = self.name+"_leftCoverU"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_leftCoverL")
+        obj.Shape = self.leftCoverL
+        obj.Label = self.name+"_leftCoverL"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_rightCoverU")
+        obj.Shape = self.rightCoverU
+        obj.Label = self.name+"_rightCoverU"
+        obj.ViewObject.ShapeColor=self._woodColor
+        obj.ViewObject.Transparency = 30
+        obj = doc.addObject("Part::Feature",self.name+"_rightCoverL")
+        obj.Shape = self.rightCoverL
+        obj.Label = self.name+"_rightCoverL"
         obj.ViewObject.ShapeColor=self._woodColor
         obj.ViewObject.Transparency = 30
         obj = doc.addObject("Part::Feature",self.name+"_topCover")
@@ -1043,27 +1092,51 @@ class YardDemo(GenerateDrawings):
     def __yardDemoCover__(self,doc):
         black = (0.0,0.0,0.0)
         result = list()
-        obj = doc.addObject("Part::Feature",self.name+"_frontCover")
-        obj.Shape = self.frontCover
-        obj.Label = self.name+"_frontCover"
+        obj = doc.addObject("Part::Feature",self.name+"_frontCoverU")
+        obj.Shape = self.frontCoverU
+        obj.Label = self.name+"_frontCoverU"
         obj.ViewObject.LineColor=black
         obj.ViewObject.LineWidth=2
         result.append(obj)
-        obj = doc.addObject("Part::Feature",self.name+"_backCover")
-        obj.Shape = self.backCover
-        obj.Label = self.name+"_backCover"
+        obj = doc.addObject("Part::Feature",self.name+"_frontCoverL")
+        obj.Shape = self.frontCoverL
+        obj.Label = self.name+"_frontCoverL"
         obj.ViewObject.LineColor=black
         obj.ViewObject.LineWidth=2
         result.append(obj)
-        obj = doc.addObject("Part::Feature",self.name+"_leftCover")
-        obj.Shape = self.leftCover
-        obj.Label = self.name+"_leftCover"
+        obj = doc.addObject("Part::Feature",self.name+"_backCoverU")
+        obj.Shape = self.backCoverU
+        obj.Label = self.name+"_backCoverU"
         obj.ViewObject.LineColor=black
         obj.ViewObject.LineWidth=2
         result.append(obj)
-        obj = doc.addObject("Part::Feature",self.name+"_rightCover")
-        obj.Shape = self.rightCover
-        obj.Label = self.name+"_rightCover"
+        obj = doc.addObject("Part::Feature",self.name+"_backCoverL")
+        obj.Shape = self.backCoverL
+        obj.Label = self.name+"_backCoverL"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_leftCoverU")
+        obj.Shape = self.leftCoverU
+        obj.Label = self.name+"_leftCoverU"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_leftCoverL")
+        obj.Shape = self.leftCoverL
+        obj.Label = self.name+"_leftCoverL"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_rightCoverU")
+        obj.Shape = self.rightCoverU
+        obj.Label = self.name+"_rightCoverU"
+        obj.ViewObject.LineColor=black
+        obj.ViewObject.LineWidth=2
+        result.append(obj)
+        obj = doc.addObject("Part::Feature",self.name+"_rightCoverL")
+        obj.Shape = self.rightCoverL
+        obj.Label = self.name+"_rightCoverL"
         obj.ViewObject.LineColor=black
         obj.ViewObject.LineWidth=2
         result.append(obj)
@@ -1078,10 +1151,10 @@ class YardDemo(GenerateDrawings):
         self.createTemplate(doc,"Yard Ladder Demo",2)
         sheet1 = self.createSheet(doc,"Base")
         base = self.__yardDemoBase__(doc)
-        tv = doc.addObject('TechDraw::DrawViewPart','TopViewBase')
+        tv = doc.addObject('TechDraw::DrawViewPart','FrontViewBase')
         sheet1.addView(tv)
         tv.Source = base
-        tv.Direction=(0.0,1.0,0.0)
+        tv.Direction=(0.0,-1.0,0.0)
         tv.ScaleType = "Custom"
         tv.Scale = 1.0/25.4
         tv.X = 60
@@ -1094,7 +1167,7 @@ class YardDemo(GenerateDrawings):
         rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
-        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewBase')
+        bv = doc.addObject('TechDraw::DrawViewPart','TopViewBase')
         sheet1.addView(bv)
         bv.Source = base
         bv.Direction=(0.0,0.0,1.0)
@@ -1106,10 +1179,10 @@ class YardDemo(GenerateDrawings):
         TechDrawGui.exportPageAsPdf(sheet1,"YardLadderDemoP1.pdf")
         sheet2 = self.createSheet(doc,"Cover")
         cover = self.__yardDemoCover__(doc)
-        tv = doc.addObject('TechDraw::DrawViewPart','TopViewCover')
+        tv = doc.addObject('TechDraw::DrawViewPart','FrontViewCover')
         sheet2.addView(tv)
         tv.Source = cover
-        tv.Direction=(0.0,1.0,0.0)
+        tv.Direction=(0.0,-1.0,0.0)
         tv.ScaleType = "Custom"
         tv.Scale = 1.0/25.4
         tv.X = 60
@@ -1122,7 +1195,7 @@ class YardDemo(GenerateDrawings):
         rv.Scale = 1.0/25.4
         rv.X = 160
         rv.Y = 160
-        bv = doc.addObject('TechDraw::DrawViewPart','BottomViewCover')
+        bv = doc.addObject('TechDraw::DrawViewPart','TopViewCover')
         sheet2.addView(bv)
         bv.Source = cover
         bv.Direction=(0.0,0.0,1.0)
@@ -1181,7 +1254,7 @@ class MultiDemo(GenerateDrawings):
         Material.AddMaterial("plywood","thick=3/8",\
                              "width=%f"%(self._OuterWidthFolded/25.4),\
                              "length=%f"%(self._OuterHeightUnfolded/25.4))
-                #
+        #
         XNormL = Base.Vector(-1,0,0)
         XNormR = Base.Vector(1,0,0)
         LeftExtrude = Base.Vector(-self._BoardThick,0,0)
