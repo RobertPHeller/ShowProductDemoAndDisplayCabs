@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230721.1344>
+#  Last Modified : <230721.1526>
 #
 #  Description	
 #
@@ -254,7 +254,7 @@ class ProductDisplay(GenerateDrawings):
                                         origin.add(Base.Vector(self._BoardThick,1+self._PlyThick,self._BoardThick)))
         Material.AddMaterial("pegboard","thick=1/8",\
                              "width=%f"%((self._OuterWidth-(2*self._BoardThick))/25.4),\
-                             "length=%f"%(self._OuterHeight-(2*self._BoardThick))/25.4)
+                             "length=%f"%((self._OuterHeight-(2*self._BoardThick))/25.4))
         self.lid = Part.makePlane(self._OuterWidth,self._OuterHeight,\
                                   origin.add(Base.Vector(0, \
                                                          self._BackODepth+self._LidODepth-self._PlyThick,0)),YNorm).extrude(BackExtrude)
