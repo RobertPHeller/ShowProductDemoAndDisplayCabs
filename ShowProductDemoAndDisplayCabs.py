@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230721.1526>
+#  Last Modified : <230731.1122>
 #
 #  Description	
 #
@@ -1481,7 +1481,7 @@ class MultiDemo(GenerateDrawings):
             polypoints.append(self.origin.add(Base.Vector(xoff+(x/8.0)*25.4,\
                                                           yoff+(y/8.0)*25.4,\
                                                           zoff)))
-        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._lexAngleLength))
+        Material.AddMaterial("1x1_PVCAngle","length=%f"%(self._lexAngleLength/25.4))
         return Part.Face(Part.Wire(Part.makePolygon(polypoints)))\
                     .extrude(LexAngleExtrude)
     _shelfBracePoly = [(0,0), (-6,0), (0,3), (0,0)]
@@ -1876,4 +1876,4 @@ if __name__ == '__main__':
     Gui.activeDocument().activeView().viewFront()
     md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
-    #sys.exit(1)
+    sys.exit(1)
