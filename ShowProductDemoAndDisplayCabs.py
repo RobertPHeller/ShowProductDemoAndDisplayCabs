@@ -9,7 +9,7 @@
 #  Author        : $Author$
 #  Created By    : Robert Heller
 #  Created       : Fri Jun 16 14:40:12 2023
-#  Last Modified : <230731.1122>
+#  Last Modified : <230809.1917>
 #
 #  Description	
 #
@@ -47,6 +47,7 @@ import FreeCADGui
 from FreeCAD import Console
 from FreeCAD import Base
 import FreeCAD as App
+import copy
 
 from abc import ABCMeta, abstractmethod, abstractproperty
 
@@ -157,7 +158,7 @@ class GenerateDrawings(object):
         self.sheet = self.sheet + 1
         sheetname = "Sheet%dOf%d"%(self.sheet,self.sheetcount)
         thissheet = doc.addObject('TechDraw::DrawPage',sheetname)
-        thissheet.Template = self.drawtemplate
+        thissheet.Template = doc.copyObject(self.drawtemplate)
         edt = thissheet.Template.EditableTexts
         edt['DrawingTitle2']= sheettitle
         edt['Scale'] = scale
@@ -555,7 +556,7 @@ class ProductDisplay(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
-        doc.recompute()
+        doc.recompute([sheet1])
         TechDrawGui.exportPageAsPdf(sheet1,"ProductDisplayCaseP1.pdf")
         sheet2 = self.createSheet(doc,"Case Back (with pegboard)")
         tv = doc.addObject('TechDraw::DrawViewPart','FrontViewPeg')
@@ -583,7 +584,7 @@ class ProductDisplay(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
-        doc.recompute()
+        doc.recompute([sheet2])
         TechDrawGui.exportPageAsPdf(sheet2,"ProductDisplayCaseP2.pdf")
         sheet3 = self.createSheet(doc,"Case Lid")
         tv = doc.addObject('TechDraw::DrawViewPart','TopViewLid')
@@ -611,7 +612,7 @@ class ProductDisplay(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60
-        doc.recompute()
+        doc.recompute([sheet3])
         TechDrawGui.exportPageAsPdf(sheet3,"ProductDisplayCaseP3.pdf")
 
 class YardDemo(GenerateDrawings):
@@ -1175,7 +1176,7 @@ class YardDemo(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
-        doc.recompute()
+        doc.recompute([sheet1])
         TechDrawGui.exportPageAsPdf(sheet1,"YardLadderDemoP1.pdf")
         sheet2 = self.createSheet(doc,"Cover")
         cover = self.__yardDemoCover__(doc)
@@ -1203,7 +1204,7 @@ class YardDemo(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
-        doc.recompute()
+        doc.recompute([sheet2])
         TechDrawGui.exportPageAsPdf(sheet2,"YardLadderDemoP2.pdf")
         
 class MultiDemo(GenerateDrawings):
@@ -1783,7 +1784,7 @@ class MultiDemo(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
-        doc.recompute()
+        doc.recompute([sheet1])
         TechDrawGui.exportPageAsPdf(sheet1,"MultiDemoP1.pdf")
         sheet2 = self.createSheet(doc,"Lexan Detail")
         lexan = self.__lexan__(doc)
@@ -1811,7 +1812,7 @@ class MultiDemo(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
-        doc.recompute()
+        doc.recompute([sheet2])
         TechDrawGui.exportPageAsPdf(sheet2,"MultiDemoP2.pdf")
         sheet3 = self.createSheet(doc,"Cover")
         cover = self.__cover__(doc)
@@ -1839,7 +1840,7 @@ class MultiDemo(GenerateDrawings):
         bv.Scale = 1.0/25.4
         bv.X = 60
         bv.Y = 60 
-        doc.recompute()
+        doc.recompute([sheet3])
         TechDrawGui.exportPageAsPdf(sheet3,"MultiDemoP3.pdf")
 
 if __name__ == '__main__':
@@ -1876,4 +1877,4 @@ if __name__ == '__main__':
     Gui.activeDocument().activeView().viewFront()
     md.generateDrawings(md_doc)
     Material.BOM("ShowProductDemoAndDisplayCabs.bom")
-    sys.exit(1)
+    #sys.exit(1)
